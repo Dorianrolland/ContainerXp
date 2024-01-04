@@ -10,7 +10,7 @@ jobs:
             run: echo Z+SX3uc7F3_MN8H | docker login -u rollanddoriandd@gmail.com --password-stdin
         -   name: Build the Docker image
             working-directory: Dockerfiles
-            run: docker build --file Dockerfile-oneapi-multi --target sdkfull --tag bigdft/sdk:oneapi .  
+            run: docker build --file Dockerfile-oneapi-multi --target sdk_full --tag bigdft/sdk:oneapi .  
         -   name: Push the tagged Docker image
             run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
