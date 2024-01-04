@@ -11,7 +11,7 @@ jobs:
         -   name: Build the Docker image
             working-directory: Dockerfiles
             run: docker build --file Dockerfile-oneapi-multi --target sdk_full --tag bigdft/sdk:oneapi .  
-        -   name: Push the tagged Docker image
+        -   name: Push the tagged Docker image 
             run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
                 docker tag bigdft/sdk:oneapi bigdft/sdk:oneapi-$d
