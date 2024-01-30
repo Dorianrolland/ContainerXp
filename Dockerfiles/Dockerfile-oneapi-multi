@@ -55,7 +55,7 @@ RUN git clone --depth 1 -b extras https://gitlab.com/l_sim/bigdft-upstream-tarba
 
 # RUN git clone --depth 1  https://gitlab.com/l_sim/bigdft-rcfiles.git rcfiles
 
-RUN git clone --depth 1 -b 1.9.3-new https://gitlab.com/luigigenovese/bigdft-suite.git sources
+RUN git clone --depth 1 https://gitlab.com/luigigenovese/bigdft-suite.git sources
 
 RUN cp tarballs-extra/AmberTools* sources/tarballs/
 
