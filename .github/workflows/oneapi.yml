@@ -14,6 +14,6 @@ jobs:
         -   name: Push the tagged Docker image 
             run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
-                docker tag bigdft/sdk:oneapi dorianalp38/sdk:oneapi-$d
+                docker tag dorianalp38/sdk:oneapi dorianalp38/sdk:oneapi-$d
                 docker push dorianalp38/sdk:oneapi-$d
                 docker push dorianalp38/sdk:oneapi
