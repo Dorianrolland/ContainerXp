@@ -6,6 +6,7 @@ export BIGDFT_JUPYTER="yes"
 export BIGDFT_OPENMPI_VERSION="4.1.1"
 export BIGDFT_MVAPICH2_VERSION="2.3.6"
 export BIGDFT_VERSION="devel"
+export BIGDFT_UBUNTU_VERSION="20.04"
 
 export BIGDFT_TOOLCHAIN="gnu"
 export BIGDFT_PYTHON="intel"
