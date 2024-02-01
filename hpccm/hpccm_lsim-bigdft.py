@@ -214,7 +214,7 @@ if "arm" in target_arch:
   Stage1 += shell(commands=['ln -s /usr/bin/python3 /usr/local/bin/python',
                           'ln -s /usr/bin/pip3 /usr/local/bin/pip'])
 
-if ubuntu_version <= StrictVersion('20.0'):
+if ubuntu_version <='20.0':
   openbabel='libopenbabel4v5'
 else:
   openbabel='libopenbabel6'
