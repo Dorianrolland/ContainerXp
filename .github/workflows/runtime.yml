@@ -45,7 +45,7 @@ jobs:
         -   name: generate docker files for openmpi
             run: |
                 source current_setup.sh
-                hpccm --recipe hpccm/hpccm_lsim-bigdft.py --userarg cuda=${BIGDFT_CUDA_VERSION} ubuntu=${BIGDFT_UBUNTU_VERSION} mpi=${{ matrix.mpi }} mpi_version=${{steps.vars.outputs.version}} target_arch=${{ matrix.arch }} tag="bigdft/sdk:${{steps.vars.outputs.tag}}_${{ matrix.arch }}" > Dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
+                hpccm --recipe hpccm/hpccm_lsim-bigdft.py --userarg cuda=${BIGDFT_CUDA_VERSION} ubuntu=${BIGDFT_UBUNTU_VERSION} mpi=${{ matrix.mpi }} mpi_version=${{steps.vars.outputs.version}} target_arch=${{ matrix.arch }} tag="dorianalp38/sdk:${{steps.vars.outputs.tag}}_${{ matrix.arch }}" > Dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
         -   name: Upload runtime dockerfile
             uses: actions/upload-artifact@v1
             with:
