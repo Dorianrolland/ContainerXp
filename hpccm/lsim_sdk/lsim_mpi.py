@@ -103,14 +103,12 @@ def mpi(tc):
 
   Stage0 += mpi_lib
 
-  # Install build dependencies for argon2-cffi-bindings
-  Stage0 += packages(apt=['build-essential'], yum=['gcc', 'make'], powertools=True, epel=True)
-
+  
 
   #Workaround missing install on mvapich_gdr in hpccm
-  if args.mpi in ["mvapich2", "mvapich"] and args.cuda != 'no':
-    Stage0 += shell(commands=['mkdir /usr/local/mpi/',
-                              'cp -r /opt/mvapich2/gdr/{}/no-mpittool/no-openacc/cuda**/mofed{}/mpirun/gnu{}/* /usr/local/mpi'.format(args.mpi_version,ofed_version,gnu_version)])
+  #if args.mpi in ["mvapich2", "mvapich"] and args.cuda != 'no':
+  # Stage0 += shell(commands=['mkdir /usr/local/mpi/',
+  #                           'cp -r /opt/mvapich2/gdr/{}/no-mpittool/no-openacc/cuda**/mofed{}/mpirun/gnu{}/* /usr/local/mpi'.format(args.mpi_version,ofed_version,gnu_version)])
 
   #update ldconfig as /usr/local/lib may not be in the path
   Stage0 += shell(commands=['echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf',
