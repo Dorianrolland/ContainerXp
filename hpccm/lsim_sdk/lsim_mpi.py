@@ -91,37 +91,6 @@ def mpi(tc):
       mpi_lib = mvapich2(version=args.mpi_version, prefix="/usr/local/mpi", toolchain=tc)
       Stage0 += packages(apt=['libibmad5'], yum=['infiniband-diags'], powertools=True, epel=True)
 
-
-    Stage0 += environment(variables={"PATH": "/usr/local/mpi/bin/:${PATH}",
-                                  "LD_LIBRARY_PATH": "/usr/local/lib/:/usr/local/mpi/lib:/usr/local/mpi/lib64:${LD_LIBRARY_PATH}",
-                                  "MV2_USE_GPUDIRECT_GDRCOPY": "0",
-                                  "MV2_SMP_USE_CMA": "0",
-                                  "MV2_ENABLE_AFFINITY": "0",
-                                  "MV2_CPU_BINDING_POLICY": "scatter",
-                                  "MV2_CPU_BINDING_LEVEL": "socket"})
-  elif args.mpi == 'intel':
-    mpi_lib = intel_mpi(eula=True) #apt_get(ospackages=[intel-mpi])
-
-  Stage0 += mpi_lib
-
-  
-
-  #Workaround missing install on mvapich_gdr in hpccm
-  #if args.mpi in ["mvapich2", "mvapich"] and args.cuda != 'no':
-  # Stage0 += shell(commands=['mkdir /usr/local/mpi/',
-  #                           'cp -r /opt/mvapich2/gdr/{}/no-mpittool/no-openacc/cuda**/mofed{}/mpirun/gnu{}/* /usr/local/mpi'.format(args.mpi_version,ofed_version,gnu_version)])
-
-  #update ldconfig as /usr/local/lib may not be in the path
-  # Stage0 += shell(commands=['echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf',
-  #                         'echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf',
-  #                        'echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf',
-  #                       'echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf',
-  #                      'ldconfig'])
-  if args.cuda != 'no':
-    Stage0 += shell(commands=['cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1'])
-    Stage0 += shell(commands=['cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1'])
-
-  Stage0 += raw(docker='USER lsim')
   return Stage0
 
 if __name__ == '__main__':
