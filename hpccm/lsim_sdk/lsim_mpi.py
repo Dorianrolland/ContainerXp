@@ -105,6 +105,7 @@ def mpi(tc):
 
   # Install build dependencies for argon2-cffi-bindings
   Stage0 += packages(apt=['build-essential'], yum=['gcc', 'make'], powertools=True, epel=True)
+  Stage0 += pip(packages=['argon2-cffi'])
 
 
   #Workaround missing install on mvapich_gdr in hpccm
