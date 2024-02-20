@@ -20,6 +20,7 @@ def mpi(tc):
   Stage0 += comment("mpi", reformat=False)
 
   Stage0 += raw(docker='USER root')
+  Stage0 += packages(apt=['build-essential'], yum=['gcc', 'gcc-c++'], powertools=True, epel=True)
 
   # MPI libraries : default ompi, v 4.0.0
   if args.mpi == "ompi":
