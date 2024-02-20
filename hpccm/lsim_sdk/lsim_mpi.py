@@ -91,15 +91,15 @@ def mpi(tc):
                     '(test -f /usr/bin/bash || ln -s /bin/bash /usr/bin/bash) ',
                     'ln -s /usr/local/cuda/lib64/stubs/nvidia-ml.so /usr/local/cuda/lib64/stubs/nvidia-ml.so.1',
                     'rm -rf /var/tmp/mvapich2-*.rpm']
-                mpi_lib = shell(commands=_commands)
+                mpi_lib = shell(commands=_commands, toolchain=tc)
             else:
                 mpi_lib = mvapich2_gdr(version=args.mpi_version, prefix="/usr/local/mpi", mlnx_ofed_version=ofed_version,
-                                      cuda_version=args.cuda, release=release, gnu_version=gnu_version)
+                                      cuda_version=args.cuda, release=release, gnu_version=gnu_version, toolchain=tc)
             Stage0 += packages(apt=['libxnvctrl-dev libibmad5'], yum=['libxnvctrl-devel infiniband-diags'], powertools=True,
-                              epel=True)
+                              epel=True, toolchain=tc)
         else:
             mpi_lib = mvapich2(version=args.mpi_version, prefix="/usr/local/mpi", toolchain=tc)
-            Stage0 += packages(apt=['libibmad5'], yum=['infiniband-diags'], powertools=True, epel=True)
+            Stage0 += packages(apt=['libibmad5'], yum=['infiniband-diags'], powertools=True, epel=True, toolchain=tc)
 
         Stage0 += environment(variables={
             "PATH": "/usr/local/mpi/bin/:${PATH}",
