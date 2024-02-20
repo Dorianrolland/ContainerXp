@@ -111,11 +111,11 @@ def mpi(tc):
   #                           'cp -r /opt/mvapich2/gdr/{}/no-mpittool/no-openacc/cuda**/mofed{}/mpirun/gnu{}/* /usr/local/mpi'.format(args.mpi_version,ofed_version,gnu_version)])
 
   #update ldconfig as /usr/local/lib may not be in the path
-  Stage0 += shell(commands=['echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf',
-                            'echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf',
-                            'echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf',
-                            'echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf',
-                            'ldconfig'])
+  # Stage0 += shell(commands=['echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf',
+  #                         'echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf',
+  #                        'echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf',
+  #                       'echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf',
+  #                      'ldconfig'])
   if args.cuda != 'no':
     Stage0 += shell(commands=['cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1'])
     Stage0 += shell(commands=['cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1'])
