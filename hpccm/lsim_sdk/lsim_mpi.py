@@ -22,18 +22,7 @@ def mpi(tc):
   Stage0 += raw(docker='USER root')
 
   # MPI libraries : default ompi, v 4.0.0
-  if args.mpi == "ompi":
-    #normal OFED 
-    Stage0 += ofed()
-    if args.mpi_version is None:
-      args.mpi_version = "4.1.1"
-    vars={"OMPI_MCA_btl_vader_single_copy_mechanism": "none",
-          "OMPI_MCA_rmaps_base_mapping_policy":"slot",
-          "OMPI_MCA_hwloc_base_binding_policy":"none",
-          "OMPI_MCA_btl_openib_cuda_async_recv":"false",
-          "OMPI_MCA_mpi_leave_pinned":"true",
-          "OMPI_MCA_opal_warn_on_missing_libcuda":"false",
-          "OMPI_MCA_rmaps_base_oversubscribe":"true"}
+ 
     if args.target_arch == "x86_64" or args.binary=="no":
       mpi_lib = openmpi(infiniband=True, pmix='internal', version=args.mpi_version , cuda = (args.cuda != 'no'), prefix="/usr/local/mpi", toolchain=tc)
       vars.update({"PATH": "/usr/local/mpi/bin/:${PATH}",
