@@ -1,0 +1,214 @@
+FROM nvidia/cuda:12.3.1-devel-centos7 AS sdk
+
+# LSim SDK image - Base : system and main dependencies
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=ppc64le --blas=openblas --jupyter=yes --mpi_version=4.1.1
+
+# SDK stage
+
+LABEL maintainer=bigdft-developers@lists.launchpad.net
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+SHELL ["/bin/bash", "-c"]
+
+RUN useradd -ms /bin/bash lsim
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH} \
+    LIBRARY_PATH=/usr/local/cuda/lib64:${LIBRARY_PATH} \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_VISIBLE_DEVICES=all
+
+RUN mkdir -p /etc/OpenCL/vendors && \
+    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
+    cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1 && \
+    cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        autoconf \
+        automake \
+        bison \
+        boost-devel \
+        boost-python3-devel \
+        bzip2 \
+        chrpath \
+        cmake \
+        cpio \
+        curl \
+        doxygen \
+        ethtool \
+        flex \
+        gdb \
+        gettext \
+        git \
+        glibc-devel \
+        gnome-common \
+        gobject-introspection-devel \
+        graphviz \
+        gtk-doc \
+        gtk3-devel \
+        intltool \
+        iproute \
+        kernel-headers \
+        kmod \
+        libarchive \
+        libmount-devel \
+        libmount-devel \
+        libnl3-devel \
+        libtool \
+        libtool-ltdl-devel \
+        libxml2-devel \
+        libyaml-devel \
+        lsof \
+        mesa-libGLU-devel \
+        net-tools \
+        netcdf-devel \
+        ninja-build \
+        numactl-libs \
+        ocl-icd \
+        openssh \
+        patch \
+        pciutils \
+        pcre-devel \
+        perl \
+        pkg-config \
+        redhat-lsb \
+        rsync \
+        strace \
+        swig \
+        tcl \
+        tk \
+        valgrind \
+        vim \
+        wget \
+        zeromq-devel \
+        zlib-devel && \
+    rm -rf /var/cache/yum/*
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        python3 \
+        python3-Cython \
+        python3-flake8 \
+        python3-flake8 \
+        python3-ipython \
+        python3-matplotlib \
+        python3-numpy \
+        python3-pip \
+        python3-scipy \
+        python3-six \
+        python3-sphinx \
+        python3-sphinx-bootstrap-theme \
+        python3-sphinx_rtd_theme \
+        watchdog && \
+    rm -rf /var/cache/yum/*
+
+RUN ln -s /usr/bin/python3 /usr/local/bin/python && \
+    ln -s /usr/bin/pip3 /usr/local/bin/pip && \
+    pip install jupyter ipykernel jupyterlab
+
+EXPOSE 8888
+
+CMD jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser
+
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PKG_CONFIG_PATH=/usr/lib64:/usr/share/lib64
+FROM sdk AS toolchain
+
+# LSim SDK image - Toolchain : Base + Compilers, Python, Linear algebra
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=ppc64le --blas=openblas --jupyter=yes --mpi_version=4.1.1
+
+# Toolchain stage
+
+RUN rpm --import http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key && \
+    yum install -y yum-utils && \
+    yum-config-manager --add-repo http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/ibm-xl-compiler-eval.repo && \
+    yum install -y \
+        xlc-license-community.16.1.1 \
+        xlc.16.1.1 \
+        xlf-license-community.16.1.1 \
+        xlf.16.1.1 && \
+    rm -rf /var/cache/yum/*
+
+RUN /opt/ibm/xlf/16.1.1/bin/xlf_configure <<< 1 >/dev/null && \
+    /opt/ibm/xlC/16.1.1/bin/xlc_configure <<< 1 >/dev/null && \
+    /opt/ibm/xlf/16.1.1/bin/xlf_configure -cuda null <<< 1 >/dev/null && \
+    /opt/ibm/xlC/16.1.1/bin/xlc_configure -cuda null <<< 1 >/dev/null
+
+ENV PATH=/opt/ibm/xlf/16.1.1/bin:/opt/ibm/xlC/16.1.1/bin:${PATH}
+
+ENV CC=xlc_r \
+    CXX=xlc++_r \
+    F77=xlf_r \
+    F90=xlf_r \
+    FC=xlf_r
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        openblas-devel && \
+    rm -rf /var/cache/yum/*
+FROM toolchain AS mpi
+
+# mpi
+
+USER root
+
+# OFED
+RUN yum install -y --disablerepo=mlnx\* \
+        dapl \
+        dapl-devel \
+        ibutils \
+        libibcm \
+        libibmad \
+        libibmad-devel \
+        libibumad \
+        libibverbs \
+        libibverbs-utils \
+        libmlx5 \
+        librdmacm \
+        rdma-core \
+        rdma-core-devel && \
+    rm -rf /var/cache/yum/*
+
+ENV OMPI_CC=xlc_r \
+    OMPI_CXX=xlc++_r \
+    OMPI_F77=xlf_r \
+    OMPI_F90=xlf_r \
+    OMPI_FC=xlf_r \
+    OMPI_MCA_btl_openib_cuda_async_recv=false \
+    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+    OMPI_MCA_hwloc_base_binding_policy=none \
+    OMPI_MCA_mpi_leave_pinned=true \
+    OMPI_MCA_opal_warn_on_missing_libcuda=false \
+    OMPI_MCA_rmaps_base_mapping_policy=slot \
+    OMPI_MCA_rmaps_base_oversubscribe=true \
+    PATH=/usr/lib64/openmpi/bin:${PATH}
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        openmpi-devel && \
+    rm -rf /var/cache/yum/*
+
+RUN echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf && \
+    echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf && \
+    ldconfig
+
+RUN cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1
+
+RUN cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+USER lsim
+
+USER lsim
+
+ENV XDG_CACHE_HOME=/home/lsim/.cache/
+
+WORKDIR /home/lsim
+
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
