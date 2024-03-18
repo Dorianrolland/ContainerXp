@@ -1,0 +1,223 @@
+FROM nvidia/cuda:12.3.1-devel-centos7 AS sdk
+
+# LSim SDK image - Base : system and main dependencies
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=arm --blas=arm --jupyter=yes --mpi_version=4.1.1
+
+# SDK stage
+
+LABEL maintainer=bigdft-developers@lists.launchpad.net
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+SHELL ["/bin/bash", "-c"]
+
+RUN useradd -ms /bin/bash lsim
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH} \
+    LIBRARY_PATH=/usr/local/cuda/lib64:${LIBRARY_PATH} \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_VISIBLE_DEVICES=all
+
+RUN mkdir -p /etc/OpenCL/vendors && \
+    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
+    cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1 && \
+    cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        autoconf \
+        automake \
+        bison \
+        boost-devel \
+        boost-python3-devel \
+        bzip2 \
+        chrpath \
+        cmake \
+        cpio \
+        curl \
+        doxygen \
+        ethtool \
+        flex \
+        gdb \
+        gettext \
+        git \
+        glibc-devel \
+        gnome-common \
+        gobject-introspection-devel \
+        graphviz \
+        gtk-doc \
+        gtk3-devel \
+        intltool \
+        iproute \
+        kernel-headers \
+        kmod \
+        libarchive \
+        libmount-devel \
+        libmount-devel \
+        libnl3-devel \
+        libtool \
+        libtool-ltdl-devel \
+        libxml2-devel \
+        libyaml-devel \
+        lsof \
+        mesa-libGLU-devel \
+        net-tools \
+        netcdf-devel \
+        ninja-build \
+        numactl-libs \
+        ocl-icd \
+        openssh \
+        patch \
+        pciutils \
+        pcre-devel \
+        perl \
+        pkg-config \
+        redhat-lsb \
+        rsync \
+        strace \
+        swig \
+        tcl \
+        tk \
+        valgrind \
+        vim \
+        wget \
+        zeromq-devel \
+        zlib-devel && \
+    rm -rf /var/cache/yum/*
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        python3 \
+        python3-Cython \
+        python3-flake8 \
+        python3-flake8 \
+        python3-ipython \
+        python3-matplotlib \
+        python3-numpy \
+        python3-pip \
+        python3-scipy \
+        python3-six \
+        python3-sphinx \
+        python3-sphinx-bootstrap-theme \
+        python3-sphinx_rtd_theme \
+        watchdog && \
+rm -rf /var/cache/yum/*
+
+#RUN ln -s /usr/bin/python3 /usr/local/bin/python && \
+#    ln -s /usr/bin/pip3 /usr/local/bin/pip && \
+#    pip install jupyter ipykernel jupyterlab
+
+EXPOSE 8888
+
+CMD jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser
+
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PKG_CONFIG_PATH=/usr/lib64:/usr/share/lib64
+FROM sdk AS toolchain
+
+# LSim SDK image - Toolchain : Base + Compilers, Python, Linear algebra
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=arm --blas=arm --jupyter=yes --mpi_version=4.1.1
+
+# Toolchain stage
+
+# Arm Allinea Studio version 20.3
+RUN yum install -y epel-release && \
+    yum install -y \
+        Lmod \
+        glibc-devel \
+        tar \
+        wget && \
+    rm -rf /var/cache/yum/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://developer.arm.com/-/media/Files/downloads/hpc/arm-allinea-studio/20-3/RHEL7/arm-compiler-for-linux_20.3_RHEL-7_aarch64.tar && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/arm-compiler-for-linux_20.3_RHEL-7_aarch64.tar -C /var/tmp && \
+    cd /var/tmp/arm-compiler-for-linux_20.3_RHEL-7_aarch64 && ./arm-compiler-for-linux_20.3_RHEL-7.sh --install-to /opt/arm --accept --only-install-microarchitectures=generic,thunderx2t99,generic-sve && \
+    rm -rf /var/tmp/arm-compiler-for-linux_20.3_RHEL-7_aarch64.tar /var/tmp/arm-compiler-for-linux_20.3_RHEL-7_aarch64
+ENV MODULEPATH=/opt/arm/modulefiles:$MODULEPATH
+
+ENV PATH=/opt/arm/arm-linux-compiler-20.3_Generic-AArch64_RHEL-7_aarch64-linux/bin/:${PATH}
+
+ENV CC=armclang \
+    CXX=armclang++ \
+    F77=armflang \
+    F90=armflang \
+    FC=armflang
+
+ENV ARMPL=/opt/arm/armpl-20.3.0_Generic-AArch64_RHEL-7_arm-linux-compiler_aarch64-linux \
+    LD_LIBRARY_PATH=/opt/arm/armpl-20.3.0_Generic-AArch64_RHEL-7_arm-linux-compiler_aarch64-linux/lib:${LD_LIBRARY_PATH} \
+    LIBRARY_PATH=/opt/arm/armpl-20.3.0_Generic-AArch64_RHEL-7_arm-linux-compiler_aarch64-linux/lib:${LIBRARY_PATH}
+FROM toolchain AS mpi
+
+# mpi
+
+USER root
+# OFED
+RUN yum install -y --disablerepo=mlnx\* \
+        dapl \
+        dapl-devel \
+        ibutils \
+        libibcm \
+        libibmad \
+        libibmad-devel \
+        libibumad \
+        libibverbs \
+        libibverbs-utils \
+        libmlx5 \
+        librdmacm \
+        rdma-core \
+        rdma-core-devel && \
+    rm -rf /var/cache/yum/*
+
+ENV LD_LIBRARY_PATH=/usr/local/mpi/lib:/usr/local/mpi/lib64:${LD_LIBRARY_PATH} \
+    OMPI_MCA_btl_openib_cuda_async_recv=false \
+    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+    OMPI_MCA_hwloc_base_binding_policy=none \
+    OMPI_MCA_mpi_leave_pinned=true \
+    OMPI_MCA_opal_warn_on_missing_libcuda=false \
+    OMPI_MCA_rmaps_base_mapping_policy=slot \
+    OMPI_MCA_rmaps_base_oversubscribe=true \
+    PATH=/usr/local/mpi/bin/:${PATH}
+
+# OpenMPI version 4.1.1
+RUN yum install -y \
+        bzip2 \
+        file \
+        hwloc \
+        make \
+        numactl-devel \
+        openssh-clients \
+        perl \
+        tar \
+        wget && \
+    rm -rf /var/cache/yum/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.1.tar.bz2 && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.1.tar.bz2 -C /var/tmp -j && \
+    cd /var/tmp/openmpi-4.1.1 &&  CC=armclang CFLAGS='-march=armv8-a -mtune=generic' CXX=armclang++ CXXFLAGS='-march=armv8-a -mtune=generic' F77=armflang F90=armflang FC=armflang ./configure --prefix=/usr/local/mpi --disable-getpwuid --enable-orterun-prefix-by-default --with-cuda=/usr/local/cuda --with-pmix=internal --with-verbs && \
+    make -j$(nproc) && \
+    make -j$(nproc) install && \
+    rm -rf /var/tmp/openmpi-4.1.1 /var/tmp/openmpi-4.1.1.tar.bz2
+ENV LD_LIBRARY_PATH=/usr/local/mpi/lib:$LD_LIBRARY_PATH \
+    PATH=/usr/local/mpi/bin:$PATH
+
+RUN echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf && \
+    echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf && \
+    ldconfig
+    RUN cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1
+
+RUN cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+USER lsim
+
+USER lsim
+
+ENV XDG_CACHE_HOME=/home/lsim/.cache/
+
+WORKDIR /home/lsim
+
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
+
