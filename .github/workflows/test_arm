@@ -1,0 +1,27 @@
+name: test
+on: [push, workflow_dispatch]
+jobs:
+    build:
+        runs-on: ubuntu-20.04
+        if: "contains(github.event.head_commit.message, 'test') || github.event_name == 'workflow_dispatch'"
+        steps:
+        -   uses: actions/checkout@v2
+        -   name: Login to DockerHub Registry
+            run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        -   name: Clean Up Before Install
+            run: |
+                sudo apt-get clean
+                sudo apt-get autoremove
+                docker system prune -a
+                sudo rm -rf /var/lib/apt/lists/*
+                sudo rm -rf /tmp/*
+                df -h
+        -   name: Build the Docker image
+            working-directory: Dockerfiles
+            run: docker build --file Dockerfile_sdk_ompi_arm --tag dorianalp38/sdk:ompi_arm .
+        -   name: Push the tagged Docker image
+            run: |
+                d=$(date +%Y-%m-%d--%H-%M-%S)
+                docker tag dorianalp38/latex:latest dorianalp38/sdk:arm_$d
+                docker push dorianalp38/sdk:arm_$d
+                docker push dorianalp38/sdk:latest
