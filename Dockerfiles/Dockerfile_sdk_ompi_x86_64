@@ -1,0 +1,246 @@
+FROM nvidia/cuda:12.3.1-devel-centos7 AS sdk
+
+# LSim SDK image - Base : system and main dependencies
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --python=intel --blas=mkl --jupyter=yes --mpi_version=4.1.1
+
+# SDK stage
+
+LABEL maintainer=bigdft-developers@lists.launchpad.net
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+SHELL ["/bin/bash", "-c"]
+
+RUN useradd -ms /bin/bash lsim
+
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH} \
+    LIBRARY_PATH=/usr/local/cuda/lib64:${LIBRARY_PATH} \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_VISIBLE_DEVICES=all
+
+RUN mkdir -p /etc/OpenCL/vendors && \
+    echo "libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
+    cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1 && \
+    cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+RUN yum install -y epel-release && \
+    yum install -y \
+        autoconf \
+        automake \
+        bison \
+        bzip2 \
+        chrpath \
+        cmake \
+        cpio \
+        curl \
+        doxygen \
+        ethtool \
+        flex \
+        gdb \
+        gettext \
+        git \
+        glibc-devel \
+        gnome-common \
+        gobject-introspection-devel \
+        graphviz \
+        gtk-doc \
+        gtk3-devel \
+        intltool \
+        iproute \
+        kernel-headers \
+        kmod \
+        libarchive \
+        libmount-devel \
+        libmount-devel \
+        libnl3-devel \
+        libtool \
+        libtool-ltdl-devel \
+        libxml2-devel \
+        libyaml-devel \
+        lsof \
+        mesa-libGLU-devel \
+        net-tools \
+        netcdf-devel \
+        ninja-build \
+        numactl-libs \
+        ocl-icd \
+        openssh \
+        patch \
+        pciutils \
+        pcre-devel \
+        perl \
+        pkg-config \
+        redhat-lsb \
+        rsync \
+        strace \
+        swig \
+        tcl \
+        tk \
+        valgrind \
+        vim \
+        wget \
+        zeromq-devel \
+        zlib-devel && \
+    rm -rf /var/cache/yum/*
+
+ENV MKLROOT=/usr/local/anaconda/
+
+# Anaconda
+RUN yum install -y \
+        ca-certificates \
+        wget && \
+    rm -rf /var/cache/yum/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp http://repo.anaconda.com/miniconda/Miniconda3-py37_4.10.3-Linux-x86_64.sh && \
+    bash /var/tmp/Miniconda3-py37_4.10.3-Linux-x86_64.sh -b -p /usr/local/anaconda && \
+    /usr/local/anaconda/bin/conda init && \
+    ln -s /usr/local/anaconda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    . /usr/local/anaconda/etc/profile.d/conda.sh && \
+    conda activate base && \
+    conda config --add channels conda-forge --add channels intel --add channels nvidia && \
+    conda install -y cython flake8 intelpython3_core ipykernel ipython jupyterlab matplotlib mkl-devel nbval ncurses openbabel pygobject six sphinx sphinx_bootstrap_theme sphinx_rtd_theme watchdog && \
+    /usr/local/anaconda/bin/conda clean -afy && \
+    rm -rf /var/tmp/Miniconda3-py37_4.10.3-Linux-x86_64.sh
+
+RUN groupadd conda && \
+    usermod -a -G conda lsim && \
+    chgrp -R conda /usr/local/anaconda/ && \
+    chmod -R 770 /usr/local/anaconda/ && \
+    ln -s /usr/local/anaconda/bin/python3-config/usr/local/anaconda//bin/python-config && \
+    mkdir curses && \
+    cd curses && \
+    wget https://anaconda.org/conda-forge/python/3.7.8/download/linux-64/python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
+    tar xjf python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
+    cp ./lib/python3.7/lib-dynload/_curses* /usr/local/anaconda/lib/python3.7/lib-dynload/ && \
+    cd .. && \
+    rm -rf curses
+
+ENV LIBRARY_PATH=/usr/local/anaconda/lib/:${LIBRARY_PATH} \
+    PATH=/usr/local/anaconda//bin:$PATH
+
+RUN echo "\
+      using python\
+      : \
+      : `which python`\
+      : `dirname /usr/local/anaconda//include/python*/..`\
+      : /usr/local/anaconda//lib\
+      ;\
+  " > /tmp/user-config.jam
+
+# Boost version 1.76.0
+RUN yum install -y \
+        bzip2 \
+        bzip2-devel \
+        tar \
+        wget \
+        which \
+        zlib-devel && \
+    rm -rf /var/cache/yum/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2 && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/boost_1_76_0.tar.bz2 -C /var/tmp -j && \
+    cd /var/tmp/boost_1_76_0 && ./bootstrap.sh --prefix=/usr/local/boost --with-libraries=python,serialization --with-python=`which python` --without-icu && \
+    ./b2 --user-config=/tmp/user-config.jam install threading=multi variant=release link=shared stage --with-regex --disable-icu --with-thread --with-serialization --with-iostreams --with-python --with-system --with-test -q -j$(nproc) -q install && \
+    rm -rf /var/tmp/boost_1_76_0.tar.bz2 /var/tmp/boost_1_76_0
+ENV LD_LIBRARY_PATH=/usr/local/boost/lib:$LD_LIBRARY_PATH
+
+EXPOSE 8888
+
+CMD jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser
+
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PKG_CONFIG_PATH=/usr/lib64:/usr/share/lib64
+FROM sdk AS toolchain
+
+# LSim SDK image - Toolchain : Base + Compilers, Python, Linear algebra
+#   Contents:
+#   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --python=intel --blas=mkl --jupyter=yes --mpi_version=4.1.1
+
+# Toolchain stage
+
+# GNU compiler
+RUN yum install -y \
+        gcc \
+        gcc-c++ \
+        gcc-gfortran && \
+    rm -rf /var/cache/yum/*
+
+ENV CC=gcc \
+    CXX=g++ \
+    F77=gfortran \
+    F90=gfortran \
+    FC=gfortran
+FROM toolchain AS mpi
+
+# mpi
+
+USER root
+
+# OFED
+RUN yum install -y --disablerepo=mlnx\* \
+        dapl \
+        dapl-devel \
+        ibutils \
+        libibcm \
+        libibmad \
+        libibmad-devel \
+        libibumad \
+        libibverbs \
+        libibverbs-utils \
+        libmlx5 \
+        librdmacm \
+        rdma-core \
+        rdma-core-devel && \
+    rm -rf /var/cache/yum/*
+
+ENV LD_LIBRARY_PATH=/usr/local/mpi/lib:/usr/local/mpi/lib64:${LD_LIBRARY_PATH} \
+    OMPI_MCA_btl_openib_cuda_async_recv=false \
+    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+    OMPI_MCA_hwloc_base_binding_policy=none \
+    OMPI_MCA_mpi_leave_pinned=true \
+    OMPI_MCA_opal_warn_on_missing_libcuda=false \
+    OMPI_MCA_rmaps_base_mapping_policy=slot \
+    OMPI_MCA_rmaps_base_oversubscribe=true \
+    PATH=/usr/local/mpi/bin/:${PATH}
+
+# OpenMPI version 4.1.1
+RUN yum install -y \
+        bzip2 \
+        file \
+        hwloc \
+        make \
+        numactl-devel \
+        openssh-clients \
+        perl \
+        tar \
+        wget && \
+    rm -rf /var/cache/yum/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.1.tar.bz2 && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.1.tar.bz2 -C /var/tmp -j && \
+    cd /var/tmp/openmpi-4.1.1 &&  CC=gcc CFLAGS='-march=x86-64 -mtune=generic' CXX=g++ CXXFLAGS='-march=x86-64 -mtune=generic' F77=gfortran F90=gfortran FC=gfortran FCFLAGS='-march=x86-64 -mtune=generic' FFLAGS='-march=x86-64 -mtune=generic' ./configure --prefix=/usr/local/mpi --disable-getpwuid --enable-orterun-prefix-by-default --with-cuda=/usr/local/cuda --with-pmix=internal --with-verbs && \
+    make -j$(nproc) && \
+    make -j$(nproc) install && \
+    rm -rf /var/tmp/openmpi-4.1.1 /var/tmp/openmpi-4.1.1.tar.bz2
+ENV LD_LIBRARY_PATH=/usr/local/mpi/lib:$LD_LIBRARY_PATH \
+    PATH=/usr/local/mpi/bin:$PATH
+
+RUN echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf && \
+    echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf && \
+    echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf && \
+    ldconfig
+
+RUN cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1
+
+RUN cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1
+
+USER lsim
+
+USER lsim
+
+ENV XDG_CACHE_HOME=/home/lsim/.cache/
+
+WORKDIR /home/lsim
+
+RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
