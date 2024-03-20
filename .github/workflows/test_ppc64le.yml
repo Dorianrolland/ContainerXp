@@ -22,6 +22,6 @@ jobs:
         -   name: Push the tagged Docker image
             run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
-                docker tag dorianalp38/latex:latest dorianalp38/sdk:$d
+                docker tag dorianalp38/sdk:latest dorianalp38/sdk:$d
                 docker push dorianalp38/sdk:$d
                 docker push dorianalp38/sdk:latest
