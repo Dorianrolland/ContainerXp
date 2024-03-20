@@ -16,6 +16,8 @@ jobs:
           sudo rm -rf /var/lib/apt/lists/*
           sudo rm -rf /tmp/*
           df -h
+      - name: Check IBM server accessibility
+        run: curl -I http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key
       - name: Build the Docker image
         working-directory: Dockerfiles
         run: docker build --file Dockerfile_sdk_ompi_ppc64le --tag dorianalp38/sdk:ompi_ppc64le .
