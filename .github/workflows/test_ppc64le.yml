@@ -20,8 +20,8 @@ jobs:
             working-directory: Dockerfiles
             run: docker build --file Dockerfile_sdk_ompi_ppc64le --tag dorianalp38/sdk:ompi_ppc64le .
         -   name: Push the tagged Docker image
-            run: |
+        -   run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
-                docker tag dorianalp38/sdk:latest dorianalp38/sdk:$d
+                docker tag dorianalp38/sdk:ompi_ppc64le dorianalp38/sdk:$d
                 docker push dorianalp38/sdk:$d
-                docker push dorianalp38/sdk:latest
+                docker push dorianalp38/sdk:ompi_ppc64le
