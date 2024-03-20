@@ -1,4 +1,4 @@
-name: test
+name: test_ppc64le
 on: [push, workflow_dispatch]
 jobs:
   build:
