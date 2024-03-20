@@ -124,6 +124,12 @@ FROM sdk AS toolchain
 
  #Toolchain stage
 
+- name: Check IBM server accessibility
+  run: |
+    curl -I http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key
+    ping -c 4 public.dhe.ibm.com
+
+
 RUN rpm --import http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key && \
     yum install -y yum-utils && \
     yum-config-manager --add-repo http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/ibm-xl-compiler-eval.repo && \
