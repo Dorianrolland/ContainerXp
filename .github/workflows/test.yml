@@ -18,10 +18,10 @@ jobs:
                 df -h
         -   name: Build the Docker image
             working-directory: Dockerfiles
-            run: docker build --file Dockerfile_sdk_ompi_ppc64le --tag dorianalp38/latex:latest .  
+            run: docker build --file Dockerfile_sdk_ompi_ppc64le --tag dorianalp38/sdk:ompi_ppc64le 
         -   name: Push the tagged Docker image
             run: |
                 d=$(date +%Y-%m-%d--%H-%M-%S)
-                docker tag dorianalp38/latex:latest dorianalp38/latex:$d
-                docker push dorianalp38/latex:$d
-                docker push dorianalp38/latex:latest
+                docker tag dorianalp38/latex:latest dorianalp38/sdk:$d
+                docker push dorianalp38/sdk:$d
+                docker push dorianalp38/sdk:latest
