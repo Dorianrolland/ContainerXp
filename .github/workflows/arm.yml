@@ -1,5 +1,6 @@
 name: arm
 on: [push, workflow_dispatch]
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -8,17 +9,17 @@ jobs:
       - uses: actions/checkout@v2
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      
+      # Étape de nettoyage simplifiée et sans prune radical
       - name: Clean Up Before Install
         run: |
-          sudo apt-get clean
-          sudo apt-get autoremove
-          docker system prune -a
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo rm -rf /tmp/*
+          sudo rm -rf /var/lib/apt/lists/* /tmp/*
           df -h
+          
       - name: Build the Docker image
         working-directory: Dockerfiles
         run: docker build --file Dockerfile_sdk_ompi_arm --tag dorianalp38/sdk:ompi_arm .
+        
       - name: Push the tagged Docker image
         run: |
           d=$(date +%Y-%m-%d--%H-%M-%S)
