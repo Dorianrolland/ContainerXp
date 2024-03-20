@@ -118,11 +118,11 @@ ENV LANG=en_US.UTF-8 \
 
 FROM sdk AS toolchain
 
- LSim SDK image - Toolchain : Base + Compilers, Python, Linear algebra
-   Contents:
-   System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=ppc64le --blas=openblas --jupyter=yes --mpi_version=4.1.1
+ #LSim SDK image - Toolchain : Base + Compilers, Python, Linear algebra
+ # Contents:
+ #  System centos Version 7 --system=centos --system_version=7 --cuda=12.3.1 --target_arch=ppc64le --blas=openblas --jupyter=yes --mpi_version=4.1.1
 
- Toolchain stage
+ #Toolchain stage
 
 RUN rpm --import http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key && \
     yum install -y yum-utils && \
