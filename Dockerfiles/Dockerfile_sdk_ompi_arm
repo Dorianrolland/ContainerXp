@@ -223,4 +223,4 @@ ENV XDG_CACHE_HOME=/home/lsim/.cache/
 
 WORKDIR /home/lsim
 
-RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
+#RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot"
