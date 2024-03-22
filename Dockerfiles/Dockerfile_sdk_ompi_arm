@@ -217,10 +217,17 @@ RUN cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.s
 
 USER lsim
 
-USER lsim
-
 ENV XDG_CACHE_HOME=/home/lsim/.cache/
 
 WORKDIR /home/lsim
+USER root
 
+# Installer les dépendances de développement pour jpeg avant d'installer Pillow
+#RUN yum install -y libjpeg-devel
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install --upgrade Pillow
+# Installer matplotlib
+RUN pip3 install matplotlib
+
+# Tester si matplotlib est installé correctement
 RUN MPLBACKEND=Agg python3 -c "import matplotlib.pyplot"
