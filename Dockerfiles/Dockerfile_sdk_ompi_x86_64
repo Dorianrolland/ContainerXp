@@ -102,18 +102,18 @@ RUN yum install -y \
 #    /usr/local/anaconda/bin/conda clean -afy && \
 #    rm -rf /var/tmp/Miniconda3-py37_4.10.3-Linux-x86_64.sh
 
-RUN groupadd conda && \
-    usermod -a -G conda lsim && \
-    chgrp -R conda /usr/local/anaconda/ && \
-    chmod -R 770 /usr/local/anaconda/ && \
-    ln -s /usr/local/anaconda/bin/python3-config/usr/local/anaconda//bin/python-config && \
-    mkdir curses && \
-    cd curses && \
-    wget https://anaconda.org/conda-forge/python/3.7.8/download/linux-64/python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
-    tar xjf python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
-    cp ./lib/python3.7/lib-dynload/_curses* /usr/local/anaconda/lib/python3.7/lib-dynload/ && \
-    cd .. && \
-    rm -rf curses
+#RUN groupadd conda && \
+ #   usermod -a -G conda lsim && \
+ #   chgrp -R conda /usr/local/anaconda/ && \
+ #   chmod -R 770 /usr/local/anaconda/ && \
+ #   ln -s /usr/local/anaconda/bin/python3-config/usr/local/anaconda//bin/python-config && \
+ #   mkdir curses && \
+ #   cd curses && \        
+ #   wget https://anaconda.org/conda-forge/python/3.7.8/download/linux-64/python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
+ #   tar xjf python-3.7.8-h6f2ec95_1_cpython.tar.bz2 && \
+ #   cp ./lib/python3.7/lib-dynload/_curses* /usr/local/anaconda/lib/python3.7/lib-dynload/ && \
+ #   cd .. && \
+ #   rm -rf curses
 
 ENV LIBRARY_PATH=/usr/local/anaconda/lib/:${LIBRARY_PATH} \
     PATH=/usr/local/anaconda//bin:$PATH
