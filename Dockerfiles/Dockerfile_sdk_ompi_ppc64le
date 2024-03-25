@@ -125,20 +125,20 @@ FROM sdk AS toolchain
  #Toolchain stage
 
 
-RUN rpm --import http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key && \
-    yum install -y yum-utils && \
-    yum-config-manager --add-repo http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/ibm-xl-compiler-eval.repo && \
-    yum install -y \
-        xlc-license-community.16.1.1 \
-        xlc.16.1.1 \
-        xlf-license-community.16.1.1 \
-        xlf.16.1.1 && \
-    rm -rf /var/cache/yum/*
+#RUN rpm --import http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/repodata/repomd.xml.key && \
+#    yum install -y yum-utils && \
+#    yum-config-manager --add-repo http://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le/rhel7/ibm-xl-compiler-eval.repo && \
+#    yum install -y \
+#        xlc-license-community.16.1.1 \
+#        xlc.16.1.1 \
+#        xlf-license-community.16.1.1 \
+#        xlf.16.1.1 && \
+#    rm -rf /var/cache/yum/*
 
-RUN /opt/ibm/xlf/16.1.1/bin/xlf_configure <<< 1 >/dev/null && \
-    /opt/ibm/xlC/16.1.1/bin/xlc_configure <<< 1 >/dev/null && \
-    /opt/ibm/xlf/16.1.1/bin/xlf_configure -cuda null <<< 1 >/dev/null && \
-    /opt/ibm/xlC/16.1.1/bin/xlc_configure -cuda null <<< 1 >/dev/null
+#RUN /opt/ibm/xlf/16.1.1/bin/xlf_configure <<< 1 >/dev/null && \
+#    /opt/ibm/xlC/16.1.1/bin/xlc_configure <<< 1 >/dev/null && \
+#    /opt/ibm/xlf/16.1.1/bin/xlf_configure -cuda null <<< 1 >/dev/null && \
+#    /opt/ibm/xlC/16.1.1/bin/xlc_configure -cuda null <<< 1 >/dev/null
 
 ENV PATH=/opt/ibm/xlf/16.1.1/bin:/opt/ibm/xlC/16.1.1/bin:${PATH}
 
