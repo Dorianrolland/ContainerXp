@@ -58,12 +58,12 @@ jobs:
             source current_setup.sh
             echo ::set-output name=tag::$(echo ${BIGDFT_SYSTEM}${BIGDFT_SYSTEM_VERSION}_cuda${BIGDFT_CUDA_VERSION}_ompi)
       - name: Update manifest for sdk to attach arm and x86_64 versions on a single image
-        run: |
-            export DOCKER_CLI_EXPERIMENTAL=enabled
-            docker manifest create dorianal38p/sdk:${{steps.vars.outputs.tag}} \
-              dorianal38p/sdk:${{steps.vars.outputs.tag}}_arm \
-              dorianal38p/sdk:${{steps.vars.outputs.tag}}_x86_64 \
-              dorianal38p/sdk:${{steps.vars.outputs.tag}}_ppc64le
-            docker manifest push --purge dorianal38p/sdk:${{steps.vars.outputs.tag}}
+        #run: |
+        #    export DOCKER_CLI_EXPERIMENTAL=enabled
+        #    docker manifest create dorianal38p/sdk:${{steps.vars.outputs.tag}} \
+        #      dorianal38p/sdk:${{steps.vars.outputs.tag}}_arm \
+        #      dorianal38p/sdk:${{steps.vars.outputs.tag}}_x86_64 \
+        #      dorianal38p/sdk:${{steps.vars.outputs.tag}}_ppc64le
+        #    docker manifest push --purge dorianal38p/sdk:${{steps.vars.outputs.tag}}
             
             # Si BIGDFT_OPENMPI_VERSION est défini et que vous souhaitez créer un manifeste distinct pour celui-ci
