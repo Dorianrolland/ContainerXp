@@ -216,20 +216,20 @@ RUN yum install -y \
         tar \
         wget && \
     rm -rf /var/cache/yum/*
-RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.1.tar.bz2 && \
-    mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.1.tar.bz2 -C /var/tmp -j && \
-    cd /var/tmp/openmpi-4.1.1 &&  CC=gcc CFLAGS='-march=x86-64 -mtune=generic' CXX=g++ CXXFLAGS='-march=x86-64 -mtune=generic' F77=gfortran F90=gfortran FC=gfortran FCFLAGS='-march=x86-64 -mtune=generic' FFLAGS='-march=x86-64 -mtune=generic' ./configure --prefix=/usr/local/mpi --disable-getpwuid --enable-orterun-prefix-by-default --with-cuda=/usr/local/cuda --with-pmix=internal --with-verbs && \
-    make -j$(nproc) && \
-    make -j$(nproc) install && \
-    rm -rf /var/tmp/openmpi-4.1.1 /var/tmp/openmpi-4.1.1.tar.bz2
+#RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.1/downloads/openmpi-4.1.1.tar.bz2 && \
+#    mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.1.1.tar.bz2 -C /var/tmp -j && \
+#    cd /var/tmp/openmpi-4.1.1 &&  CC=gcc CFLAGS='-march=x86-64 -mtune=generic' CXX=g++ CXXFLAGS='-march=x86-64 -mtune=generic' F77=gfortran F90=gfortran FC=gfortran FCFLAGS='-march=x86-64 -mtune=generic' FFLAGS='-march=x86-64 -mtune=generic' ./configure --prefix=/usr/local/mpi --disable-getpwuid --enable-orterun-prefix-by-default --with-cuda=/usr/local/cuda --with-pmix=internal --with-verbs && \
+#    make -j$(nproc) && \
+#    make -j$(nproc) install && \
+#    rm -rf /var/tmp/openmpi-4.1.1 /var/tmp/openmpi-4.1.1.tar.bz2
 ENV LD_LIBRARY_PATH=/usr/local/mpi/lib:$LD_LIBRARY_PATH \
     PATH=/usr/local/mpi/bin:$PATH
 
-RUN echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf && \
-    echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf && \
-    echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf && \
-    echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf && \
-    ldconfig
+#RUN echo "/usr/local/mpi/lib" > /etc/ld.so.conf.d/mpi.conf && \
+#    echo "/usr/local/mpi/lib64" >> /etc/ld.so.conf.d/mpi.conf && \
+#    echo "/usr/local/anaconda/lib" >> /etc/ld.so.conf.d/anaconda.conf && \
+#    echo "/bigdft/lib" > /etc/ld.so.conf.d/bigdft.conf && \
+#    ldconfig
 
 RUN cp /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/lib/libcuda.so.1
 
