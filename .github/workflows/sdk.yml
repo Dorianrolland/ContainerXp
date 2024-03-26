@@ -48,7 +48,6 @@ jobs:
           
   manifest:
       runs-on: ubuntu-latest
-      needs: build_mpi  # Remplacer par le nom correct du job si nécessaire
       steps:
       - uses: actions/checkout@v2
       - name: Login to DockerHub Registry
