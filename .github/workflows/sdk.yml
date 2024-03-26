@@ -44,7 +44,7 @@ jobs:
           fi
       - name: Build the tagged Docker image
         run: |
-          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --file ./dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianal38p/sdk:${{steps.vars.outputs.nompitag}} --output "type=image, name=dorianal38p/sdk_sdk:CI,push=true" .
+          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianal38p/sdk:${{steps.vars.outputs.nompitag}} --output "type=image, name=dorianal38p/sdk_sdk:CI,push=true" .
 
   manifest:
     runs-on: ubuntu-latest
