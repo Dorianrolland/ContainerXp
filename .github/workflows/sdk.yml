@@ -45,8 +45,7 @@ jobs:
       - name: Build the tagged Docker image
         run: |
           docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk:${{steps.vars.outputs.nompitag}} --push .
-      - name: Check if the image exists on Docker Hub
-        run: docker pull dorianalp38/sdk:${{steps.vars.outputs.nompitag}}
+   
 
           
   manifest:
