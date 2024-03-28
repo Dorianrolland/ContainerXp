@@ -44,7 +44,7 @@ jobs:
           fi
       - name: Build the tagged Docker image
         run: |
-          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk2:${{steps.vars.outputs.nompitag}}_v2 --push .
+          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk2:${{steps.vars.outputs.nompitag}} --push .
    
 
   manifest:
@@ -59,7 +59,7 @@ jobs:
     - name: Create and Push Multi-Arch Docker Manifest
       run: |
         export DOCKER_CLI_EXPERIMENTAL=enabled
-        docker manifest create dorianalp38/sdk:centos7_cuda12.3.1_manifest \
-        dorianalp38/sdk2:centos7_cuda12.3.1_x86_64_v2 \
-        dorianalp38/sdk2:centos7_cuda12.3.1_arm_v2 \
-        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le_v2
+        docker manifest create dorianalp38/sdk:centos \
+        dorianalp38/sdk2:centos7_cuda12.3.1_x86_64 \
+        dorianalp38/sdk2:centos7_cuda12.3.1_arm \
+        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le
