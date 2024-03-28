@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         mpi: [ompi]
-        arch: [x86_64, arm64, ppc64le] # Assurez-vous d'utiliser 'arm64' pour les processeurs ARM 64 bits.
+        arch: [x86_64, arm64, ppc64le] # 'arm' changé en 'arm64' si c'est ce que vous visez.
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -23,6 +23,8 @@ jobs:
           platforms: all
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build and push Docker images
@@ -35,14 +37,14 @@ jobs:
     needs: build_sdk
     runs-on: ubuntu-20.04
     steps:
+      - uses: actions/checkout@v2
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Create and Push Multi-Arch Docker Manifest
         run: |
           export DOCKER_CLI_EXPERIMENTAL=enabled
-          manifest_tag=dorianalp38/sdk:centos7_cuda12.3.1_manifest_${{ github.run_number }}_v2
-          docker manifest create $manifest_tag \
-            dorianalp38/sdk2:ompi_x86_64_${{ github.run_number }}_v2 \
-            dorianalp38/sdk2:ompi_arm64_${{ github.run_number }}_v2 \
-            dorianalp38/sdk2:ompi_ppc64le_${{ github.run_number }}_v2
-          docker manifest push $manifest_tag
+          docker manifest create dorianalp38/sdk:centos7_cuda12.3.1_manifest_${{ github.run_number }} \
+            dorianalp38/sdk2:centos7_cuda12.3.1_x86_64_${{ github.run_number }}_v2 \
+            dorianalp38/sdk2:centos7_cuda12.3.1_arm64_${{ github.run_number }}_v2 \
+            dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le_${{ github.run_number }}_v2
+          docker manifest push dorianalp38/sdk:centos7_cuda12.3.1_manifest_${{ github.run_number }}
