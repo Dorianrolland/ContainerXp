@@ -54,12 +54,15 @@ jobs:
     - uses: actions/checkout@v2
     - name: Login to DockerHub Registry
       run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: Get the tag and MPI version
+      id: vars
+      run: |
+        source current_setup.sh
+        echo ::set-output name=tag::$(echo ${BIGDFT_SYSTEM}${BIGDFT_SYSTEM_VERSION}_cuda${BIGDFT_CUDA_VERSION}_ompi)
     - name: Create and Push Multi-Arch Docker Manifest
       run: |
-    - name: Create and Push Multi-Arch Docker Manifest
-      run: |
-        export DOCKER_CLI_EXPERIMENTAL=enabled
-        docker manifest create dorianalp38/sdk:centos \
-        dorianalp38/sdk2:centos7_cuda12.3.1_x86_64 \
-        dorianalp38/sdk2:centos7_cuda12.3.1_arm \
-        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le
+       export DOCKER_CLI_EXPERIMENTAL=enabled
+       docker manifest create --amend dorianal38p/sdk2:${{steps.vars.outputs.tag}} dorianal38p/sdk2:${{steps.vars.outputs.tag}}_arm dorianal38p/sdk2:${{steps.vars.outputs.tag}}_x86_64 dorianal38p/sdk2:${{steps.vars.outputs.tag}}_ppc64le   
+       docker manifest push --purge dorianal38p/sdk2:${{steps.vars.outputs.tag}}
+       docker manifest create --amend dorianal38p/sdk2:${{steps.vars.outputs.tag}}${BIGDFT_OPENMPI_VERSION} dorianal38p/sdk2:${{steps.vars.outputs.tag}}_arm dorianal38p/sdk2:${{steps.vars.outputs.tag}}_x86_64  dorianal38p/sdk2:${{steps.vars.outputs.tag}}_ppc64le
+       docker manifest push --purge dorianal38p/sdk2:${{steps.vars.outputs.tag}}${BIGDFT_OPENMPI_VERSION}
