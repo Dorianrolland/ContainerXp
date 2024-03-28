@@ -58,7 +58,7 @@ jobs:
       run: |
     - name: Create and Push Multi-Arch Docker Manifest
       run: |
-        export DOCKER_CLI_EXPERIMENTAL=enabled
+        #export DOCKER_CLI_EXPERIMENTAL=enabled
         docker manifest create dorianalp38/sdk:centos7_cuda12.3.1_ompi \
         dorianalp38/sdk:centos7_cuda12.3.1_x86_64 \
         dorianalp38/sdk:centos7_cuda12.3.1_arm \
