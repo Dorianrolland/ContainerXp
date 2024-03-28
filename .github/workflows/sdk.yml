@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       kind:
-        description: 'Type of launch'
+        description: 'type of launch'
         required: false
         default: 'manual'
 
@@ -13,7 +13,10 @@ jobs:
     strategy:
       matrix:
         mpi: [ompi]
-        arch: [x86_64, arm64, ppc64le] # 'arm' changé en 'arm64' si c'est ce que vous visez.
+        arch: [x86_64, arm, ppc64le]
+        exclude:
+          - mpi: mvapich
+            arch: arm
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -27,24 +30,36 @@ jobs:
           version: latest
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Build and push Docker images
+      - name: Get the tag and MPI version
+        id: vars
         run: |
-          export DOCKER_CLI_EXPERIMENTAL=enabled
-          image_tag=dorianalp38/sdk2:${{ matrix.mpi }}_${{ matrix.arch }}_${{ github.run_number }}_v2
-          docker buildx build --platform ${{ matrix.arch }} --file Dockerfile --tag $image_tag --push .
+          source current_setup.sh
+          echo ::set-output name=nompitag::$(echo ${BIGDFT_SYSTEM}${BIGDFT_SYSTEM_VERSION}_cuda${BIGDFT_CUDA_VERSION}_${{ matrix.arch }})
+          if [ ${{ matrix.arch }} == "arm" ]; then
+              echo ::set-output name=docker_platform::"linux/arm64"
+          elif [ ${{ matrix.arch }} == "ppc64le" ]; then
+              echo ::set-output name=docker_platform::"linux/ppc64le"
+          else
+              echo ::set-output name=docker_platform::"linux/amd64"
+          fi
+      - name: Build the tagged Docker image
+        run: |
+          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk2:${{steps.vars.outputs.nompitag}}_v2 --push .
+   
 
-  create_manifest:
-    needs: build_sdk
+  manifest:
     runs-on: ubuntu-20.04
+    needs: build_sdk
     steps:
-      - uses: actions/checkout@v2
-      - name: Login to DockerHub Registry
-        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-      - name: Create and Push Multi-Arch Docker Manifest
-        run: |
-          export DOCKER_CLI_EXPERIMENTAL=enabled
-          docker manifest create dorianalp38/sdk:centos7_cuda12.3.1_manifest_${{ github.run_number }} \
-            dorianalp38/sdk2:centos7_cuda12.3.1_x86_64_${{ github.run_number }}_v2 \
-            dorianalp38/sdk2:centos7_cuda12.3.1_arm64_${{ github.run_number }}_v2 \
-            dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le_${{ github.run_number }}_v2
-          docker manifest push dorianalp38/sdk:centos7_cuda12.3.1_manifest_${{ github.run_number }}
+    - uses: actions/checkout@v2
+    - name: Login to DockerHub Registry
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: Create and Push Multi-Arch Docker Manifest
+      run: |
+    - name: Create and Push Multi-Arch Docker Manifest
+      run: |
+        export DOCKER_CLI_EXPERIMENTAL=enabled
+        docker manifest create dorianalp38/sdk:centos7_cuda12.3.1_manifest \
+        dorianalp38/sdk2:centos7_cuda12.3.1_x86_64_v2 \
+        dorianalp38/sdk2:centos7_cuda12.3.1_arm_v2 \
+        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le_v2
