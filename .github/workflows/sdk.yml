@@ -45,8 +45,6 @@ jobs:
       - name: Build the tagged Docker image
         run: |
           docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk2:${{steps.vars.outputs.nompitag}} --push .
-   
-
   manifest:
     runs-on: ubuntu-20.04
     needs: build_sdk
@@ -56,12 +54,9 @@ jobs:
       run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Create and Push Multi-Arch Docker Manifest
       run: |
-    - name: Create and Push Multi-Arch Docker Manifest
-      run: |
         export DOCKER_CLI_EXPERIMENTAL=enabled
         docker manifest create dorianalp38/sdk:centos \
         dorianalp38/sdk2:centos7_cuda12.3.1_x86_64 \
         dorianalp38/sdk2:centos7_cuda12.3.1_arm \
-        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le \
-        docker manifest push --insecure dorianalp38/centos:latest
-        
+        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le
+        docker manifest push dorianalp38/sdk:centos
