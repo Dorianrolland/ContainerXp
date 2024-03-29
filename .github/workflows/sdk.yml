@@ -62,4 +62,6 @@ jobs:
         docker manifest create dorianalp38/sdk:centos \
         dorianalp38/sdk2:centos7_cuda12.3.1_x86_64 \
         dorianalp38/sdk2:centos7_cuda12.3.1_arm \
-        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le
+        dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le \
+        docker manifest push --insecure dorianalp38/centos:latest
+        
