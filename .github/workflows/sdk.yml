@@ -55,8 +55,8 @@ jobs:
     - name: Create and Push Multi-Arch Docker Manifest
       run: |
         export DOCKER_CLI_EXPERIMENTAL=enabled
-        docker manifest create dorianalp38/sdk:centos \
+        docker manifest create dorianalp38/sdk:latest \
         dorianalp38/sdk2:centos7_cuda12.3.1_x86_64 \
         dorianalp38/sdk2:centos7_cuda12.3.1_arm \
         dorianalp38/sdk2:centos7_cuda12.3.1_ppc64le
-        docker manifest push dorianalp38/sdk:centos
+        docker manifest push dorianalp38/sdk:latest
