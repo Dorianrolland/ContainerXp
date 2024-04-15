@@ -18,7 +18,7 @@ from distutils.version import LooseVersion, StrictVersion
 #######
 ## Build bigdft
 #######
-'nvidia/cuda:11.0-base'
+image = 'nvidia/cuda:11.0-base'
 
 cuda_version = USERARG.get('cuda', '10.0')
 if cuda_version == "8.0":
