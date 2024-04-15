@@ -160,12 +160,18 @@ Stage0 += workdir(directory='/home/lsim')
 #######
 ## Runtime image
 #######
-cuda_version = USERARG.get('cuda', '10.0')
-repo = "nvidia/cuda"
-if "arm" in target_arch:
-  repo+="-arm64"
 
-image = '{}:{}-base-ubuntu{}'.format(repo,cuda_version,ubuntu_version)
+target_arch = USERARG.get('target_arch', 'x86_64')
+if "arm" in target_arch:
+    # Si l'architecture est ARM, utilisez la nouvelle image runtime trouvée
+    image = 'nvidia/cuda:12.4.1-runtime-ubuntu20.04'
+else:
+    # Si l'architecture est autre (par exemple x86_64), spécifiez l'image appropriée
+    image = 'nvidia/cuda:12.4.1-runtime-ubuntu20.04'  # ou une autre image spécifique à l'architecture
+
+# Configurez Stage1 avec la nouvelle image
+Stage1.baseimage(image)
+
 Stage1.name = 'runtime'
 Stage1.baseimage(image, _distro=distro)
 
