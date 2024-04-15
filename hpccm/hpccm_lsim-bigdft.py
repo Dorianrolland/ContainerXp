@@ -18,7 +18,7 @@ from distutils.version import LooseVersion, StrictVersion
 #######
 ## Build bigdft
 #######
-image = 'nvidia/cuda:11.0-base'
+image = 'nvidia/cuda:12.4.1-runtime-ubuntu20.04'
 
 cuda_version = USERARG.get('cuda', '10.0')
 if cuda_version == "8.0":
