@@ -161,6 +161,11 @@ Stage0 += workdir(directory='/home/lsim')
 ## Runtime image
 #######
 
+cuda_version = USERARG.get('cuda', '10.0')
+repo = "nvidia/cuda"
+if "arm" in target_arch:
+  repo+="-arm64"
+
 target_arch = USERARG.get('target_arch', 'x86_64')
 if "arm" in target_arch:
     # Si l'architecture est ARM, utilisez la nouvelle image runtime trouvée
