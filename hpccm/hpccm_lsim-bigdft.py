@@ -174,10 +174,10 @@ if "arm" in target_arch:
 target_arch = USERARG.get('target_arch', 'x86_64')
 if "arm" in target_arch:
     # Utilisez une image appropriée pour ARM sous CentOS
-    image = 'nvidia/cuda:12.4.1-runtime-centos7-arm64'  # Exemple, ajustez selon la disponibilité
+    image = 'nvidia/cuda:12.4.0-runtime-centos7'  # Exemple, ajustez selon la disponibilité
 else:
     # Utilisez une image appropriée pour x86_64 sous CentOS
-    image = 'nvidia/cuda:12.4.1-runtime-centos7'  # Exemple, ajustez selon la disponibilité
+    image = 'nvidia/cuda:12.4.0-runtime-centos7'  # Exemple, ajustez selon la disponibilité
 
 # Configuration de Stage1 avec la nouvelle image
 Stage1.baseimage(image)
