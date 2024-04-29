@@ -319,7 +319,10 @@ if "arm" not in target_arch:
     })
 
 # Adding environment variables universally for all architectures
-Stage0 += environment(variables={"CUDA_GENCODES": '"'+cuda_gencodes+'"'})
+# En supposant que cuda_gencodes est une liste de chaînes de caractères
+cuda_gencodes_str = ' '.join(cuda_gencodes)
+Stage0 += environment(variables={"CUDA_GENCODES": '"' + cuda_gencodes_str + '"'})
+
 Stage0 += shell(commands=['sed -i "s/__shfl_down(/__shfl_down_sync(0xFFFFFFFF,/g" ../psolver/src/cufft.cu'])
 
 # Configure user and environment for Stage1
