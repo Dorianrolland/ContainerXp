@@ -44,7 +44,7 @@ jobs:
           fi
       - name: Build the tagged Docker image
         run: |
-          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk2:${{steps.vars.outputs.nompitag}} --push .
+          docker buildx build --target sdk --platform ${{ steps.vars.outputs.docker_platform }} --provenance false --file ./Dockerfiles/Dockerfile_sdk_${{ matrix.mpi }}_${{ matrix.arch }} --tag dorianalp38/sdk:${{steps.vars.outputs.nompitag}} --push .
   manifest:
     runs-on: ubuntu-20.04
     needs: build_sdk
