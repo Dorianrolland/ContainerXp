@@ -131,6 +131,10 @@ for i in range(len(arches)):
     Stage0 += environment(variables={"BIGDFT_OPTFLAGS": arches[i]})
 
   if i == 0:
+
+    Stage0 += shell(commands=[
+    'git config --global http.sslVerify false'
+])
     # Configuration initiale et compilation pour la première architecture
     Stage0 += shell(commands=[
       'echo "prefix=\'/usr/local/bigdft\' " > ./buildrc',
