@@ -54,9 +54,6 @@ Stage0 += shell(commands=['chown -R lsim:lsim /opt/bigdft', 'chmod -R 777 /opt/b
 # Assurez-vous que les paquets Python et les locales sont installés
 Stage0 += packages(yum=['python3', 'python3-pip', 'glibc-all-langpacks'])
 
-# Création d'un lien symbolique pour python3 si nécessaire
-Stage0 += shell(commands=['ln -s /usr/bin/python3 /usr/bin/python'])
-
 use_mkl = USERARG.get('mkl', 'yes') if target_arch == "x86_64" else "no"
 if use_mkl == "yes":
     Stage0 += workdir(directory='/usr/local/anaconda/lib')
