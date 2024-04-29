@@ -51,6 +51,11 @@ Stage0 += workdir(directory='/opt/')
 Stage0 += shell(commands=['rm -rf /opt/bigdft'])
 Stage0 += shell(commands=['git clone --branch ' + bigdft_version + ' https://gitlab.com/l_sim/bigdft-suite.git ./bigdft'])
 Stage0 += shell(commands=['chown -R lsim:lsim /opt/bigdft', 'chmod -R 777 /opt/bigdft', 'mkdir /usr/local/bigdft', 'chmod -R 777 /usr/local/bigdft'])
+# Assurez-vous que les paquets Python et les locales sont installés
+Stage0 += packages(yum=['python3', 'python3-pip', 'glibc-all-langpacks'])
+
+# Création d'un lien symbolique pour python3 si nécessaire
+Stage0 += shell(commands=['ln -s /usr/bin/python3 /usr/bin/python'])
 
 use_mkl = USERARG.get('mkl', 'yes') if target_arch == "x86_64" else "no"
 if use_mkl == "yes":
