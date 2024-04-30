@@ -96,7 +96,7 @@ elif cuda_version == "11":
 Stage0 += environment(variables={"CUDA_GENCODES": ' '.join(cuda_gencodes)})
 
 Stage0 += workdir(directory='/opt/bigdft/build/')
-Stage0 += shell(commands=['sed -i "s/__shfl_down(/__shfl_down_sync(0xFFFFFFFF,/g" ../psolver/src/cufft.cu'])
+# Stage0 += shell(commands=['sed -i "s/__shfl_down(/__shfl_down_sync(0xFFFFFFFF,/g" ../psolver/src/cufft.cu'])
 
 if use_mkl == "yes":
     Stage0 += environment(variables={
