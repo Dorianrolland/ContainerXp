@@ -96,7 +96,6 @@ elif cuda_version == "11":
 Stage0 += environment(variables={"CUDA_GENCODES": ' '.join(cuda_gencodes)})
 
 Stage0 += workdir(directory='/opt/bigdft/build/')
-# Stage0 += shell(commands=['sed -i "s/__shfl_down(/__shfl_down_sync(0xFFFFFFFF,/g" ../psolver/src/cufft.cu'])
 
 if use_mkl == "yes":
     Stage0 += environment(variables={
@@ -294,8 +293,6 @@ if "arm" not in target_arch:
 # En supposant que cuda_gencodes est une liste de chaînes de caractères
 cuda_gencodes_str = ' '.join(cuda_gencodes)
 Stage0 += environment(variables={"CUDA_GENCODES": '"' + cuda_gencodes_str + '"'})
-
-# Stage0 += shell(commands=['sed -i "s/__shfl_down(/__shfl_down_sync(0xFFFFFFFF,/g" ../psolver/src/cufft.cu'])
 
 # Configure user and environment for Stage1
 Stage1 += shell(commands=['useradd -ms /bin/bash bigdft'])
