@@ -268,11 +268,6 @@ Stage1 += shell(commands=['MPLBACKEND=Agg python -c "import matplotlib.pyplot"']
 Stage1 += raw(docker='EXPOSE 8888')
 Stage1 += raw(docker='CMD jupyter-notebook --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser', singularity='%runscript\n jupyter-notebook --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser')
 
-if "arm" in target_arch:
-  Stage1 += copy(_from="bigdft_build", src="/opt/arm/armpl-20.3.0_Generic-AArch64_Ubuntu-16.04_gcc_aarch64-linux", dest="/opt/arm/armpl-20.3.0_Generic-AArch64_Ubuntu-16.04_gcc_aarch64-linux")
-  Stage1 += copy(_from="bigdft_build", src="/opt/arm/armpl-20.3.0_ThunderX2CN99_Ubuntu-16.04_gcc_aarch64-linux", dest="/opt/arm/armpl-20.3.0_ThunderX2CN99_Ubuntu-16.04_gcc_aarch64-linux")
-  Stage1 += environment(variables={"LD_LIBRARY_PATH": "/opt/arm/armpl-20.3.0_Generic-AArch64_Ubuntu-16.04_gcc_aarch64-linux/lib:${LD_LIBRARY_PATH}"})
-
 Stage1 += shell(commands=["rm -rf $(find / | perl -ne 'print if /[^[:ascii:]]/')"])
 
 Stage1 += shell(commands=[
