@@ -129,40 +129,6 @@ for i in range(len(arches)):
   if arches[i] is not None:
     Stage0 += environment(variables={"BIGDFT_OPTFLAGS": arches[i]})
 
-  if i == 0:
-
-    Stage0 += shell(commands=[
-    'git config --global http.sslVerify false'
-  ])
-    # Configuration initiale et compilation pour la première architecture
-    Stage0 += shell(commands=[
-      'echo "prefix=\'/usr/local/bigdft\' " > ./buildrc',
-      'cat /tmp/container.rc >> buildrc',
-      '/opt/bigdft/Installer.py autogen -y',
-      '/opt/bigdft/bundler/jhbuild.py --no-interact --exit-on-error update pspio',
-      'sed -i "s/enable-fortran/enable-fortran --enable-shared=yes/" /opt/bigdft/bigdft.modules',
-      'cd /opt/bigdft/pspio',
-      'sed -i "s/file/open/g" fortran/scripts/make-fortran-constants.py',
-      'git config --global user.email "a@a.com"',
-      'git config --global user.name "docker"',
-      'git add fortran/scripts/make-fortran-constants.py',
-      'git commit -m "empty"',
-      'cd -',
-      '/opt/bigdft/bundler/jhbuild.py -f ./buildrc --no-interact --exit-on-error build pspio',
-      '/opt/bigdft/Installer.py build -y -v -a ntpoly',
-      'ls /usr/local/bigdft/bin/bigdft',
-      'rm -rf *'
-    ])
-  else:
-    # Utilisation directe du fichier rc pour les autres architectures
-    Stage0 += shell(commands=[
-      '/opt/bigdft/bundler/jhbuild.py --no-interact --exit-on-error build pspio',
-      '/opt/bigdft/Installer.py build -y -v -a ntpoly -f /tmp/container.rc',
-      'ls install/bin/bigdft',
-      'cp -r install/lib /usr/local/bigdft/lib/' + folders[i],
-      'rm -rf *'
-    ])
-
 Stage0 += workdir(directory='/home/lsim')
 
 
