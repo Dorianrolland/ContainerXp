@@ -14,6 +14,13 @@ SHELL ["/bin/bash", "-c"]
 
 RUN useradd -ms /bin/bash lsim
 
+RUN curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | \
+    tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+    
+RUN yum-config-manager --enable nvidia-container-toolkit-experimental
+
+RUN yum install -y nvidia-container-toolkit
+
 ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH} \
     LIBRARY_PATH=/usr/local/cuda/lib64:${LIBRARY_PATH} \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
@@ -210,6 +217,8 @@ ENV XDG_CACHE_HOME=/home/lsim/.cache/
 
 WORKDIR /home/lsim
 USER root
+
+RUN yum install -y python3
 
 # Installer les dépendances de développement pour jpeg avant d'installer Pillow
 #RUN yum install -y libjpeg-devel
