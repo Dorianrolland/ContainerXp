@@ -11,7 +11,7 @@ Contents:
   v_sim-dev in the optional target
 
   This recipe was generated with command line :
-$ hpccm.py --recipe hpccm_lsim-mpi.py --userarg cuda={}""".format(USERARG.get('cuda', '10.0'))+""" ubuntu={}""".format(USERARG.get('ubuntu', '16.04'))+""" mpi={}""".format(USERARG.get('mpi', 'ompi'))
+$ hpccm.py --recipe hpccm_lsim-bigdft.py --userarg cuda={}""".format(USERARG.get('cuda', '10.0'))+""" ubuntu={}""".format(USERARG.get('ubuntu', '16.04'))+""" mpi={}""".format(USERARG.get('mpi', 'ompi'))
 
 from hpccm.templates.git import git
 from distutils.version import LooseVersion, StrictVersion
