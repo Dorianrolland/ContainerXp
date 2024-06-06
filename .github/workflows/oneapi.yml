@@ -1,19 +1,33 @@
 name: oneapi
 on: [push, workflow_dispatch]
 jobs:
-    build:
-        runs-on: ubuntu-20.04
-        if: "contains(github.event.head_commit.message, 'latex') || github.event_name == 'workflow_dispatch'"
-        steps:
-        -   uses: actions/checkout@v2
-        -   name: Login to DockerHub Registry
-            run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        -   name: Build the Docker image
-            working-directory: Dockerfiles
-            run: docker build --file Dockerfile-stages --target sdk --tag dorianalp38/sdk:oneapi .  
-        -   name: Push the tagged Docker image
-            run: |
-                d=$(date +%Y-%m-%d--%H-%M-%S)    
-                docker tag dorianalp38/sdk:oneapi dorianalp38/sdk:oneapi-$d
-                docker push dorianalp38/sdk:oneapi-$d
-                docker push dorianalp38/sdk:oneapi
+  build:
+    runs-on: ubuntu-20.04
+    if: "contains(github.event.head_commit.message, 'latex') || github.event_name == 'workflow_dispatch'"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Clean up disk space before build
+      run: |
+        sudo apt-get clean
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+
+    - name: Login to DockerHub Registry
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Build the Docker image
+      working-directory: Dockerfiles
+      run: docker build --file Dockerfile-stages --target sdk --tag bigdft/sdk:oneapi .
+
+    - name: Clean up disk space after build
+      run: |
+        docker system prune -a -f
+
+    - name: Push the tagged Docker image
+      run: |
+        d=$(date +%Y-%m-%d--%H-%M-%S)
+        docker tag bigdft/sdk:oneapi bigdft/sdk:oneapi-$d
+        docker push bigdft/sdk:oneapi-$d
+        docker push bigdft/sdk:oneapi
