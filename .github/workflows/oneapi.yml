@@ -19,7 +19,7 @@ jobs:
 
     - name: Build the Docker image
       working-directory: Dockerfiles
-      run: docker build --file Dockerfile-oneapi-base-stages --target sdk --tag dorianalp38/sdk:oneapi .
+      run: docker build --file Dockerfile-oneapi-base --target sdk --tag dorianalp38/sdk:oneapi .
 
     - name: Clean up disk space after build
       run: |
