@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-20.04
-    if: "contains(github.event.head_commit.message, 'oneapi','Dockerfile-stages') || github.event_name == 'workflow_dispatch'"
+    if: "contains(github.event.head_commit.message, 'oneapi','Dockerfile-stages') || contains(github.event.head_commit.message, 'oneapi','oneapi') || github.event_name == 'workflow_dispatch'"
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
