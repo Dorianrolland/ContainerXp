@@ -19,7 +19,7 @@ jobs:
 
     - name: Build the Docker image
       working-directory: Dockerfiles
-      run: docker build --file Dockerfile-stages --target sdk --tag bigdft/sdk:oneapi .
+      run: docker build --file Dockerfile-oneapi-base-stages --target sdk --tag bigdft/sdk:oneapi .
 
     - name: Clean up disk space after build
       run: |
