@@ -19,7 +19,7 @@ jobs:
 
     - name: Build the Docker image
       working-directory: Dockerfiles
-      run: docker build --file Dockerfile-oneapi-base-stages --target sdk --tag bigdft/sdk:oneapi .
+      run: docker build --file Dockerfile-oneapi-base-stages --target sdk --tag dorianalp38/sdk:oneapi .
 
     - name: Clean up disk space after build
       run: |
@@ -28,6 +28,6 @@ jobs:
     - name: Push the tagged Docker image
       run: |
         d=$(date +%Y-%m-%d--%H-%M-%S)
-        docker tag bigdft/sdk:oneapi bigdft/sdk:oneapi-$d
-        docker push bigdft/sdk:oneapi-$d
-        docker push bigdft/sdk:oneapi
+        docker tag dorianalp38/sdk:oneapi dorianalp38/sdk:oneapi-$d
+        docker push dorianalp38/sdk:oneapi-$d
+        docker push dorianalp38/sdk:oneapi
