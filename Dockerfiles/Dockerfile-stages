@@ -126,7 +126,7 @@ RUN chmod +x /bin/compile_bigdft-suite.sh
 FROM  baseclientsdk AS clientsdk
 
 COPY --from=vdw /opt/upstream/ /opt/upstream/
-COPY --from=vdw $BIGDFT_SUITE_TARBALLDIR/ $BIGDFT_SUITE_TARBALLDIR/
+#COPY --from=vdw $BIGDFT_SUITE_TARBALLDIR/ $BIGDFT_SUITE_TARBALLDIR/
 
 COPY --from=bioone /opt/upstream/ /opt/upstream/
 COPY --from=bioone $BIGDFT_SUITE_TARBALLDIR/ $BIGDFT_SUITE_TARBALLDIR/
