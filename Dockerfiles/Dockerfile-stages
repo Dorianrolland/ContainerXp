@@ -87,8 +87,8 @@ RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-hpc-upstream.rc -m 
 
 FROM precompile as vdw
 
-RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-vdw.rc -m $BIGDFT_SUITE_SOURCES/modulesets/vdw.modules build s-dftd3
-RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-vdw.rc -m $BIGDFT_SUITE_SOURCES/modulesets/vdw.modules clean s-dftd3
+#RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-vdw.rc -m $BIGDFT_SUITE_SOURCES/modulesets/vdw.modules build s-dftd3
+#RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-vdw.rc -m $BIGDFT_SUITE_SOURCES/modulesets/vdw.modules clean s-dftd3
 
 FROM boost as bioone
 
