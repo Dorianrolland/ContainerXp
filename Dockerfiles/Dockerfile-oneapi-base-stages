@@ -37,8 +37,8 @@ RUN mkdir -p $BIGDFT_SUITE_CHECKOUTROOT
 
 FROM precompile AS prebase
 
-RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-hpc-upstream-base.rc -m $BIGDFT_SUITE_SOURCES/modulesets/upstream.modules build PyYAML
-RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-hpc-upstream-base.rc -m $BIGDFT_SUITE_SOURCES/modulesets/upstream.modules clean PyYAML
+RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-hmc-upstream-base.rc -m $BIGDFT_SUITE_SOURCES/modulesets/upstream.modules build PyYAML
+RUN $JHBUILD_COMMAND -f $BIGDFT_SUITE_SOURCES/rcfiles/oneapi-hmc-upstream-base.rc -m $BIGDFT_SUITE_SOURCES/modulesets/upstream.modules clean PyYAML
 
 FROM prebase AS basesdk
 
