@@ -33,17 +33,11 @@ jobs:
             with:
                 version: latest
                 driver-opts: network=host
-        - name: Set up docker-slim
-          run: |
-               cd /tmp
-               wget https://downloads.dockerslim.com/releases/1.34.0/dist_linux.tar.gz
-               tar xzf dist_linux.tar.gz
-               mkdir -p ~/workspace/Dockerfiles/docker-slim
-               mv dist_linux ~/workspace/Dockerfiles/docker-slim
-               cd ~/workspace/Dockerfiles/docker-slim
-               ./docker-slim --version
-               ./docker-slim version
-
+        -   name: Set up docker-slim
+            run: |
+                wget https://downloads.dockerslim.com/releases/1.36.0/dist_linux.tar.gz
+                tar xzf dist_linux.tar.gz
+                mv dist_linux docker-slim
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         -   name: Build the tag
