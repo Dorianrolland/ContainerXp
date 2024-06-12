@@ -1,19 +1,72 @@
-name: runtime-lite
-on: [workflow_dispatch, push]
+name: runtime
+on: 
+    workflow_dispatch:
+    workflow_run:
+        workflows: ["sdk"]
+        types:
+            - completed
 jobs:
-    build:
-        runs-on: ubuntu-20.04
-        if: "contains(github.event.head_commit.message, 'lite') || github.event_name == 'workflow_dispatch'"
+    generate:
         strategy:
             matrix:
-                arch: [linux/arm64, linux/amd64]
-        services:
-          registry:
-            image: registry:2
-            ports:
-              - 5000:5000
+                mpi: [ompi]
+                arch: [x86_64, arm]
+                exclude:
+                    - mpi: mvapich
+                      arch: arm
+        runs-on: ubuntu-20.04
         steps:
         -   uses: actions/checkout@v2
+        -   name: Cache python dependencies
+            id: cache-pip
+            uses: actions/cache@v1
+            with:
+                path: ~/.cache/pip
+                key: pip-pre-commit-${{ hashFiles('**/setup.json') }}
+                restore-keys:
+                    pip-pre-commit-
+        -   name: Set up Python
+            uses: actions/setup-python@v1
+            with:
+                python-version: 3.8
+        -   name: Install python dependencies
+            run: |
+                pip install hpccm
+        -   name: Get the tag and MPI version
+            id: vars
+            run: |
+                source current_setup.sh 
+                if [ ${{ matrix.mpi }} == "mvapich" ]; then
+                    echo ::set-output name=version::$(echo $BIGDFT_MVAPICH2_VERSION) 
+                else
+                    echo ::set-output name=version::$(echo $BIGDFT_OPENMPI_VERSION) 
+                fi          
+                echo ::set-output name=tag::$(echo ubuntu${BIGDFT_UBUNTU_VERSION}_cuda${BIGDFT_CUDA_VERSION}_${{ matrix.mpi }}${{steps.vars.outputs.version}})
+        -   name: generate docker files for openmpi
+            run: |
+                source current_setup.sh
+                hpccm --recipe hpccm/hpccm_lsim-bigdft.py --userarg cuda=${BIGDFT_CUDA_VERSION} ubuntu=${BIGDFT_UBUNTU_VERSION} mpi=${{ matrix.mpi }} mpi_version=${{steps.vars.outputs.version}} target_arch=${{ matrix.arch }} tag="dorianalp38/sdk:${{steps.vars.outputs.tag}}_${{ matrix.arch }}" > Dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
+        -   name: Upload runtime dockerfile
+            uses: actions/upload-artifact@v1
+            with:
+                name: dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
+                path: Dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
+    build_runtime:
+        runs-on: ubuntu-latest
+        needs: generate
+        strategy:
+            matrix:
+                mpi: [ompi]
+                arch: [x86_64, arm]
+                exclude:
+                    - mpi: mvapich
+                      arch: arm
+        steps:
+        -   uses: actions/checkout@v2
+        -   name: Download dockerfile
+            uses: actions/download-artifact@v1
+            with:
+                name: dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}
         -   name: Set up QEMU
             uses: docker/setup-qemu-action@v1
             with:
@@ -22,48 +75,66 @@ jobs:
             uses: docker/setup-buildx-action@v1
             with:
                 version: latest
-                driver-opts: network=host
-        -   name: Set up docker-slim
-            run: |
-                wget https://downloads.dockerslim.com/releases/1.34.0/dist_linux.tar.gz
-                tar xzf dist_linux.tar.gz
-                mv dist_linux docker-slim
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        -   name: Build the tag
-            id: tag
+        -   name: Get the tag and MPI version
+            id: vars
             run: |
-                if [ ${{ matrix.arch }} == "linux/arm64" ]; then
-                    echo ::set-output name=tag::$(echo "latest_arm")
-                    echo ::set-output name=image::$(echo "dorianalp38/runtime-lite:latest_arm")
+                source current_setup.sh 
+                if [ ${{ matrix.mpi }} == "mvapich" ]; then
+                    echo ::set-output name=version::$(echo $BIGDFT_MVAPICH2_VERSION) 
                 else
-                    echo ::set-output name=tag::$(echo "latest_amd64")
-                    echo ::set-output name=image::$(echo "localhost:5000/dorianalp38/runtime-slim:latest_amd64")
-                fi   
-        -   name: Build image and send it to local repo
-            uses: docker/build-push-action@v2
-            with:
-                push: true
-                tags: ${{steps.tag.outputs.image}}
-                context: Dockerfiles
-                file: Dockerfiles/Dockerfile
-                platforms: ${{ matrix.arch }}
-        -   name: Build the Docker image
-            run: |
-                if [ ${{ matrix.arch }} == "linux/amd64" ]; then
-                  docker pull ${{steps.tag.outputs.image}}
-                  ./docker-slim/docker-slim build --target ${{steps.tag.outputs.image}} --provenance false --tag dorianalp38/runtime-lite:${{steps.tag.outputs.tag}} --http-probe=false --continue-after 1 --include-bin /usr/bin/rsh --include-bin /usr/bin/mpirun --include-bin /lib/x86_64-linux-gnu/libudev.so.1 --include-path=/usr/share/openmpi --include-path /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/
-                  docker push dorianalp38/runtime-lite:${{steps.tag.outputs.tag}}
+                    echo ::set-output name=version::$(echo $BIGDFT_OPENMPI_VERSION) 
                 fi
-    manifest:
-        runs-on: ubuntu-20.04
-        needs: build
+                if [ ${{ matrix.arch }} == "arm" ]; then
+                    echo ::set-output name=docker_platform::"linux/arm64"
+                else
+                    echo ::set-output name=docker_platform::"linux/amd64"
+                fi
+                echo ::set-output name=tag::$(echo ubuntu${BIGDFT_UBUNTU_VERSION}_cuda${BIGDFT_CUDA_VERSION}_${{ matrix.mpi }}${{steps.vars.outputs.version}}_${{ matrix.arch }})
+        -   name: Build the tagged Docker image
+            run: docker buildx build --platform ${{ steps.vars.outputs.docker_platform }} --tag dorianalp38/runtime:${{steps.vars.outputs.tag}} --file $PWD/dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }}/Dockerfile_runtime_${{ matrix.mpi }}_${{ matrix.arch }} --output type=image,push=true $PWD/hpccm
+        -   name: Test Fehyb OMP
+            if: matrix.arch != 'arm'
+            working-directory: FeHyb/NOGPU
+            run: |
+                  chmod -R 777 .
+                  docker run -v $PWD:/results -w /results dorianalp38/runtime:${{steps.vars.outputs.tag}} bigdft
+        -   name: Upload logfile
+            if: matrix.arch != 'arm'
+            uses: actions/upload-artifact@v1
+            with:
+                name: log-omp-${{ matrix.mpi }}
+                path: FeHyb/NOGPU/log.yaml
+        -   name: Test Fehyb MPI
+            if: matrix.arch != 'arm'
+            working-directory: FeHyb/NOGPU
+            run: |
+              docker run -v $PWD:/results -w /results -e OMP_NUM_THREADS=1 dorianalp38/runtime:${{steps.vars.outputs.tag}} mpirun -np 2 bigdft
+        -   name: Upload logfile
+            if: matrix.arch != 'arm'
+            uses: actions/upload-artifact@v1
+            with:
+                name: log-mpi-${{ matrix.mpi }}
+                path: FeHyb/NOGPU/log.yaml
+    manifest_runtime:
+        runs-on: ubuntu-latest
+        needs: build_runtime
         steps:
         -   uses: actions/checkout@v2
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        -   name: Update manifest for dorianalp38-lite to attach arm and x86_64 versions on a single image
+        -   name: Get the tag and MPI version
+            id: vars
+            run: |
+                source current_setup.sh 
+                echo ::set-output name=tag::$(echo ubuntu${BIGDFT_UBUNTU_VERSION}_cuda${BIGDFT_CUDA_VERSION}_ompi)
+        -   name: Update manifest for runtime to attach arm and x86_64 versions on a single image
             run: |
                 export DOCKER_CLI_EXPERIMENTAL=enabled
-                docker manifest create --amend dorianalp38/runtime-lite:latest dorianalp38/runtime-lite:latest_arm dorianalp38/runtime-lite:latest_amd64
-                docker manifest push --purge dorianalp38/runtime-lite:latest
+                docker manifest create --amend dorianalp38/runtime:${{steps.vars.outputs.tag}} dorianalp38/runtime:${{steps.vars.outputs.tag}}_arm dorianalp38/runtime:${{steps.vars.outputs.tag}}_x86_64
+                docker manifest push --purge dorianalp38/runtime:${{steps.vars.outputs.tag}}
+                docker manifest create --amend dorianalp38/runtime:${{steps.vars.outputs.tag}}${BIGDFT_OPENMPI_VERSION} dorianalp38/runtime:${{steps.vars.outputs.tag}}_arm dorianalp38/runtime:${{steps.vars.outputs.tag}}_x86_64
+                docker manifest push --purge dorianalp38/runtime:${{steps.vars.outputs.tag}}${BIGDFT_OPENMPI_VERSION}
+                docker manifest create --amend dorianalp38/runtime:latest dorianalp38/runtime:${{steps.vars.outputs.tag}}_arm dorianalp38/runtime:${{steps.vars.outputs.tag}}_x86_64
+                docker manifest push --purge dorianalp38/runtime:latest
