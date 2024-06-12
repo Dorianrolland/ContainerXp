@@ -1,4 +1,4 @@
-name: runtime-lite
+vname: runtime-lite
 on: [workflow_dispatch, push]
 jobs:
     build:
@@ -19,6 +19,10 @@ jobs:
                sh get-docker.sh
                sudo systemctl start docker
                docker --version
+        - name: Verify Docker Client Version
+          run: |
+               docker --version
+               docker version
         -   uses: actions/checkout@v2
         -   name: Set up QEMU
             uses: docker/setup-qemu-action@v1
@@ -58,6 +62,7 @@ jobs:
             run: |
                 if [ ${{ matrix.arch }} == "linux/amd64" ]; then
                   docker pull ${{steps.tag.outputs.image}}
+                  docker version
                   ./docker-slim/docker-slim build --target ${{steps.tag.outputs.image}} --tag dorianalp38/runtime-lite:${{steps.tag.outputs.tag}} --http-probe=false --continue-after 1 --include-bin /usr/bin/rsh --include-bin /usr/bin/mpirun --include-bin /lib/x86_64-linux-gnu/libudev.so.1 --include-path=/usr/share/openmpi --include-path /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/
                   docker push dorianalp38/runtime-lite:${{steps.tag.outputs.tag}}
                 fi
