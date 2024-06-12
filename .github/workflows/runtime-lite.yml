@@ -42,7 +42,7 @@ jobs:
                     echo ::set-output name=image::$(echo "dorianalp38/runtime-lite:latest_arm")
                 else
                     echo ::set-output name=tag::$(echo "latest_amd64")
-                    echo ::set-output name=image::$(echo "localhost:5000/dorianalp38/runtime-slim:latest_amd64")
+                    echo ::set-output name=image::$(echo "dorianalp38/runtime-slim:latest_amd64")
                 fi   
         -   name: Build image and send it to local repo
             uses: docker/build-push-action@v2
