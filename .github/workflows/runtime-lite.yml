@@ -13,6 +13,10 @@ jobs:
             ports:
               - 5000:5000
         steps:
+        - name: Set up Docker
+          run: |
+               curl -fsSL https://get.docker.com -o get-docker.sh
+               sh get-docker.sh
         -   uses: actions/checkout@v2
         -   name: Set up QEMU
             uses: docker/setup-qemu-action@v1
