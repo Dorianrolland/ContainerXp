@@ -1,4 +1,4 @@
-vname: runtime-lite
+name: runtime-lite
 on: [workflow_dispatch, push]
 jobs:
     build:
