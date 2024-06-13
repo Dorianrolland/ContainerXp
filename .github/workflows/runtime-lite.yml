@@ -16,12 +16,24 @@ jobs:
         - name: Set up Docker
           run: |
                curl -fsSL https://get.docker.com -o get-docker.sh
-               sh get-docker.sh
+               sudo sh get-docker.sh
                sudo systemctl start docker
                docker --version
         - name: Verify Docker Client Version
           run: |
                docker --version
+               docker version
+        - name: Ensure Docker is up-to-date
+          run: |
+               sudo apt-get update
+               sudo apt-get install --only-upgrade docker-ce docker-ce-cli containerd.io
+               docker --version
+               docker version
+        - name: Display Docker Versions for Verification
+          run: |
+               echo "Docker Client Version:"
+               docker --version
+               echo "Docker Version Details:"
                docker version
         -   uses: actions/checkout@v2
         -   name: Set up QEMU
@@ -37,8 +49,8 @@ jobs:
             run: | 
                  curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.36.2/dist_linux.tar.gz
                  tar -xvf ds.tar.gz
-                 mv  dist_linux/docker-slim /usr/local/bin/
-                 mv  dist_linux/docker-slim-sensor /usr/local/bin/
+                 sudo mv  dist_linux/docker-slim /usr/local/bin/
+                 sudo mv  dist_linux/docker-slim-sensor /usr/local/bin/
                  docker-slim update
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
