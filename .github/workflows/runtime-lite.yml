@@ -39,6 +39,7 @@ jobs:
                  tar -xvf ds.tar.gz
                  mv  dist_linux/docker-slim /usr/local/bin/
                  mv  dist_linux/docker-slim-sensor /usr/local/bin/
+                 docker-slim update
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         -   name: Build the tag
