@@ -34,7 +34,9 @@ jobs:
                 version: latest
                 driver-opts: network=host
         -   name: Set up docker-slim
-            run: apt-get install docker-slim
+            run: curl -sL \
+                 https://raw.githubusercontent.com/docker-slim/docker-slim/master/scripts/install-dockerslim.sh \
+                 | sudo -E bash -
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         -   name: Build the tag
