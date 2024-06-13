@@ -34,7 +34,8 @@ jobs:
                 version: latest
                 driver-opts: network=host
         -   name: Set up docker-slim
-            run: wget https://downloads.dockerslim.com/releases/1.39.0/dist_linux.tar.gz
+            run: |
+                wget https://downloads.dockerslim.com/releases/1.39.0/dist_linux.tar.gz
                 tar xzf dist_linux.tar.gz
                 mv dist_linux docker-slim
         -   name: Login to DockerHub Registry
