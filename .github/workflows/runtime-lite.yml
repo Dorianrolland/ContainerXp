@@ -34,9 +34,9 @@ jobs:
                 version: latest
                 driver-opts: network=host
         -   name: Set up docker-slim
-            run: curl -sL \
-                 https://raw.githubusercontent.com/docker-slim/docker-slim/master/scripts/install-dockerslim.sh \
-                 | sudo -E bash -
+            run: wget https://downloads.dockerslim.com/releases/1.39.0/dist_linux.tar.gz
+                tar xzf dist_linux.tar.gz
+                mv dist_linux docker-slim
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         -   name: Build the tag
@@ -61,7 +61,7 @@ jobs:
             run: |
                 if [ ${{ matrix.arch }} == "linux/amd64" ]; then
                   docker pull ${{steps.tag.outputs.image}}
-                  docker-slim build --target ${{steps.tag.outputs.image}} --tag dorianalp38/runtime-lite:${{steps.tag.outputs.tag}} --http-probe=false --continue-after 1 --include-bin /usr/bin/rsh --include-bin /usr/bin/mpirun --include-bin /lib/x86_64-linux-gnu/libudev.so.1 --include-path=/usr/share/openmpi --include-path /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/
+                  ./docker-slim/docker-slim build --target ${{steps.tag.outputs.image}} --tag dorianalp38/runtime-lite:${{steps.tag.outputs.tag}} --http-probe=false --continue-after 1 --include-bin /usr/bin/rsh --include-bin /usr/bin/mpirun --include-bin /lib/x86_64-linux-gnu/libudev.so.1 --include-path=/usr/share/openmpi --include-path /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/
                   docker push dorianalp38/runtime-lite:${{steps.tag.outputs.tag}}
                 fi
     manifest:
