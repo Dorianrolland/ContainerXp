@@ -30,10 +30,8 @@ jobs:
                docker version
         - name: Configure Docker to support older API versions
           run: |
-               sudo systemctl edit docker.service <<EOF
-               [Service]
-               Environment=DOCKER_MIN_API_VERSION=1.12
-               EOF
+               echo "[Service]" | sudo tee /etc/systemd/system/docker.service.d/override.conf
+               echo "Environment=DOCKER_MIN_API_VERSION=1.12" | sudo tee -a /etc/systemd/system/docker.service.d/override.conf
                sudo systemctl daemon-reload
                sudo systemctl restart docker
                DOCKER_API_VERSION=1.12 docker version
