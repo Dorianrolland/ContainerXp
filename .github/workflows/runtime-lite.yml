@@ -30,24 +30,14 @@ jobs:
                 mv dist_linux docker-slim
         -   name: Login to DockerHub Registry
             run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        -   name: Build the tag
-            id: tag
+        -   name: Build and push image
             run: |
                 if [ ${{ matrix.arch }} == "linux/arm64" ]; then
-                    echo ::set-output name=tag::$(echo "latest_arm")
-                    echo ::set-output name=image::$(echo "dorianalp38/runtime-lite:latest_arm")
+                    docker buildx build --platform linux/arm64 --provenance false --sbom false -t dorianalp38/runtime-lite:latest_arm --push .
                 else
-                    echo ::set-output name=tag::$(echo "latest_amd64")
-                    echo ::set-output name=image::$(echo "dorianalp38/runtime-slim:latest_amd64")
-                fi   
-        -   name: Build image and send it to local repo
-            uses: docker/build-push-action@v2
-            with:
-                push: true
-                tags: ${{steps.tag.outputs.image}}
-                context: Dockerfiles
-                file: Dockerfiles/Dockerfile
-                platforms: ${{ matrix.arch }}
+                    docker buildx build --platform linux/amd64 --provenance false --sbom false -t dorianalp38/runtime-lite:latest_amd64 --push .
+                fi
+
     manifest:
         runs-on: ubuntu-20.04
         needs: build
@@ -58,5 +48,7 @@ jobs:
         -   name: Update manifest for bigdft-lite to attach arm and x86_64 versions on a single image
             run: |
                 export DOCKER_CLI_EXPERIMENTAL=enabled
-                docker manifest create --amend dorianalp38/runtime-lite:latest dorianalp38/runtime-lite:latest_arm dorianalp38/runtime-lite:latest_amd64
+                docker manifest create dorianalp38/runtime-lite:latest dorianalp38/runtime-lite:latest_arm dorianalp38/runtime-lite:latest_amd64
+                docker manifest annotate dorianalp38/runtime-lite:latest dorianalp38/runtime-lite:latest_arm --arch arm64
+                docker manifest annotate dorianalp38/runtime-lite:latest dorianalp38/runtime-lite:latest_amd64 --arch amd64
                 docker manifest push --purge dorianalp38/runtime-lite:latest
