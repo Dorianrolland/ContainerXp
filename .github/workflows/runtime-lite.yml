@@ -79,6 +79,7 @@ jobs:
         run: |
           if [ ${{ matrix.arch }} == "linux/amd64" ]; then
             docker pull ${{steps.tag.outputs.image}}
+            export DOCKER_BUILDKIT=0 # Désactiver BuildKit si nécessaire
             docker-slim --debug build --target ${{steps.tag.outputs.image}} --tag dorianalp38/runtime-lite:${{steps.tag.outputs.tag}} --http-probe=false --continue-after 1 --include-bin /usr/bin/rsh --include-bin /usr/bin/mpirun --include-bin /lib/x86_64-linux-gnu/libudev.so.1 --include-path=/usr/share/openmpi --include-path /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/
             docker push dorianalp38/runtime-lite:${{steps.tag.outputs.tag}}
           fi
