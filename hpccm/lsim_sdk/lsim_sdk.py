@@ -148,7 +148,7 @@ def sdk():
     #somehow there is no jupyter package for centos 8.
     if args.system == 'centos' and args.jupyter == 'yes':
       #make python3 and pip3 default
-      pycommands += ['pip install jupyter ipykernel jupyterlab']
+      pycommands = ['pip install jupyter ipykernel jupyterlab']
 
     Stage0 += shell(commands=pycommands)
     python_path = '/usr/'
