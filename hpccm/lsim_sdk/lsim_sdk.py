@@ -139,7 +139,7 @@ def sdk():
     'python3-flake8']
     yum=ospack+['python3-Cython', 'python3-sphinx_rtd_theme']
     apt=ospack+['cython3', 'python3-sphinx-rtd-theme']
-    pycommands=['ln -s /usr/bin/python3 /usr/local/bin/python',
+    #pycommands=['ln -s /usr/bin/python3 /usr/local/bin/python',
                    'ln -s /usr/bin/pip3 /usr/local/bin/pip']
     #if args.jupyter == 'yes':
     #  apt+=['jupyter-notebook', 'python3-ipykernel']
