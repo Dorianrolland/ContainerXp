@@ -141,16 +141,16 @@ def sdk():
     apt=ospack+['cython3', 'python3-sphinx-rtd-theme']
     #pycommands=['ln -s /usr/bin/python3 /usr/local/bin/python',
     #               'ln -s /usr/bin/pip3 /usr/local/bin/pip']
-    #if args.jupyter == 'yes':
-    #  apt+=['jupyter-notebook', 'python3-ipykernel']
-    #Stage0 += packages(apt=apt, yum=yum, powertools=True, epel=True)
+    if args.jupyter == 'yes':
+      apt+=['jupyter-notebook', 'python3-ipykernel']
+    Stage0 += packages(apt=apt, yum=yum, powertools=True, epel=True)
 
-    #somehow there is no jupyter package for centos 8.
-    #if args.system == 'centos' and args.jupyter == 'yes':
-    # make python3 and pip3 default
-    #pycommands += ['pip install jupyter ipykernel jupyterlab']
+    somehow there is no jupyter package for centos 8.
+    if args.system == 'centos' and args.jupyter == 'yes':
+     make python3 and pip3 default
+    pycommands += ['pip install jupyter ipykernel jupyterlab']
 
-    #Stage0 += shell(commands=pycommands)
+    Stage0 += shell(commands=pycommands)
     python_path = '/usr/'
 
   #Install boost with the provided python
