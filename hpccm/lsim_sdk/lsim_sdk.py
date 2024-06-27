@@ -150,7 +150,7 @@ def sdk():
     # make python3 and pip3 default
     #pycommands += ['pip install jupyter ipykernel jupyterlab']
 
-    Stage0 += shell(commands=pycommands)
+    #Stage0 += shell(commands=pycommands)
     python_path = '/usr/'
 
   #Install boost with the provided python
