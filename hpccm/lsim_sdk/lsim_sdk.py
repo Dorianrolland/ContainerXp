@@ -145,7 +145,7 @@ def sdk():
       apt+=['jupyter-notebook', 'python3-ipykernel']
     Stage0 += packages(apt=apt, yum=yum, powertools=True, epel=True)
 
-    somehow there is no jupyter package for centos 8.
+    #somehow there is no jupyter package for centos 8.
     if args.system == 'centos' and args.jupyter == 'yes':
      make python3 and pip3 default
     pycommands += ['pip install jupyter ipykernel jupyterlab']
