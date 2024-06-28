@@ -96,23 +96,9 @@ def sdk():
     if args.jupyter == 'yes':
       conda_packages += [ 'jupyterlab', 'ipykernel']
     
-    #conda install
-    if args.oneapi == 'no':
-      Stage0 += conda(version='4.10.3', python_subversion='py37', channels=channels,
-                    eula=True, packages=conda_packages)
-      conda_path = '/usr/local/anaconda/'
-      commands = ['groupadd conda',
-                  'usermod -a -G conda lsim',
-                  'chgrp -R conda ' + conda_path,
-                  'chmod -R 770 ' + conda_path]
-    else:
-      #use already present conda on oneapi images
-      conda_path = '/opt/intel/oneapi/intelpython/latest/'
-      commands = [conda_path+'bin/conda config --add channels ' + ' --add channels '.join(channels),
-        conda_path+'bin/conda install -y '+ ' '.join(conda_packages),
-        conda_path+'bin/conda clean -afy' ]
+     #remove conda install
 
-    if args.python == 'iintel':
+    if args.python == 'intel':
       commands += ['ln -s ' + conda_path + 'bin/python3-config' + conda_path + '/bin/python-config']
       #Intel python forgets to provide ncurses https://community.intel.com/t5/Intel-Distribution-for-Python/curses-missing-on-python-3-7/m-p/1201384#M1509
       #Temporarily steal the files from conda-forge package, and use them instead, as it's used in bigdft-tool.
@@ -123,7 +109,7 @@ def sdk():
                   'cp ./lib/python3.7/lib-dynload/_curses* ' + conda_path + 'lib/python3.7/lib-dynload/',
                   'cd ..',
                   'rm -rf curses']
-    #Stage0 += shell(commands=commands)
+    Stage0 += shell(commands=commands)
 
     #update LIBRARY_PATH as well to allow building against these libs :
     Stage0 += environment(variables={'PATH':  conda_path + '/bin:$PATH',
