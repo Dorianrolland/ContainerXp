@@ -97,7 +97,7 @@ def sdk():
       conda_packages += [ 'jupyterlab', 'ipykernel']
     
     #conda install
-     Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwiiiiiiiiiiiiiiiiiiiiiiiwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
+    Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwiiiiiiiiiiiiiiiiiiiiiiiwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
     if args.oneapi == 'no':
       Stage0 += conda(version='4.10.3', python_subversion='py37', channels=channels,
                     eula=True, packages=conda_packages)
