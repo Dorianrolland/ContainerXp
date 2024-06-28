@@ -93,7 +93,7 @@ def sdk():
     Stage0+= boost(python=args.python != 'no', 
                   bootstrap_opts=['--with-libraries=python,serialization', '--with-python=`which python`', '--without-icu'],
                   b2_opts=['--user-config=/tmp/user-config.jam', 'install', 'threading=multi', 'variant=release', 'link=shared', 'stage', '--with-regex', '--disable-icu', '--with-thread', '--with-serialization', '--with-iostreams', '--with-python', '--with-system', '--with-test', '-q']) 
-  
+  Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
   if (args.jupyter == 'yes'):
     Stage0 += raw(docker='EXPOSE 8888')
     Stage0 += raw(docker='CMD jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token=bigdft --no-browser', 
