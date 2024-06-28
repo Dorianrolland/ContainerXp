@@ -111,8 +111,12 @@ def sdk():
       commands = [conda_path+'bin/conda config --add channels ' + ' --add channels '.join(channels),
         conda_path+'bin/conda install -y '+ ' '.join(conda_packages),
         conda_path+'bin/conda clean -afy' ]
+      
 
-    if args.python == 'iintel':
+    Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
+
+    
+    if args.python == 'intel':
       commands += ['ln -s ' + conda_path + 'bin/python3-config' + conda_path + '/bin/python-config']
       #Intel python forgets to provide ncurses https://community.intel.com/t5/Intel-Distribution-for-Python/curses-missing-on-python-3-7/m-p/1201384#M1509
       #Temporarily steal the files from conda-forge package, and use them instead, as it's used in bigdft-tool.
