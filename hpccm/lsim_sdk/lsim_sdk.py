@@ -76,7 +76,7 @@ def sdk():
                               'cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/lib/libnvidia-ml.so.1'])
 
   Stage0 += packages(apt=apt_packages, yum=yum_packages, powertools=True, epel=True, release_stream=True)
-   Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
+  Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwoooooooooooooooooooooooooooooooooooooowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
   if args.target_arch == 'x86_64':
 
     conda_packages = [ 'openbabel', 'six', 'matplotlib', 'ipython',
