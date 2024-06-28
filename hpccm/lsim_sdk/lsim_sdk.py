@@ -99,13 +99,13 @@ def sdk():
     #conda install
     Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwiiiiiiiiiiiiiiiiiiiiiiiwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
     if args.oneapi == 'no':
-      Stage0 += conda(version='4.10.3', python_subversion='py37', channels=channels,
-                    eula=True, packages=conda_packages)
-      conda_path = '/usr/local/anaconda/'
-      commands = ['groupadd conda',
-                  'usermod -a -G conda lsim',
-                  'chgrp -R conda ' + conda_path,
-                  'chmod -R 770 ' + conda_path]
+      #Stage0 += conda(version='4.10.3', python_subversion='py37', channels=channels,
+      #              eula=True, packages=conda_packages)
+      #conda_path = '/usr/local/anaconda/'
+      #commands = ['groupadd conda',
+      #            'usermod -a -G conda lsim',
+      #            'chgrp -R conda ' + conda_path,
+      #            'chmod -R 770 ' + conda_path]
     else:
       #use already present conda on oneapi images
       conda_path = '/opt/intel/oneapi/intelpython/latest/'
