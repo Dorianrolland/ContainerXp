@@ -123,7 +123,7 @@ def sdk():
                   'cp ./lib/python3.7/lib-dynload/_curses* ' + conda_path + 'lib/python3.7/lib-dynload/',
                   'cd ..',
                   'rm -rf curses']
-    Stage0 += shell(commands=commands)
+    #Stage0 += shell(commands=commands)
 
     #update LIBRARY_PATH as well to allow building against these libs :
     Stage0 += environment(variables={'PATH':  conda_path + '/bin:$PATH',
