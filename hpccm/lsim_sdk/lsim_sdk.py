@@ -98,7 +98,7 @@ def sdk():
     
     #conda install
     Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwiiiiiiiiiiiiiiiiiiiiiiiwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
-    if args.oneapi == 'no':
+    #if args.oneapi == 'no':
       #Stage0 += conda(version='4.10.3', python_subversion='py37', channels=channels,
       #              eula=True, packages=conda_packages)
       #conda_path = '/usr/local/anaconda/'
@@ -106,12 +106,12 @@ def sdk():
       #            'usermod -a -G conda lsim',
       #            'chgrp -R conda ' + conda_path,
       #            'chmod -R 770 ' + conda_path]
-    else:
+    #else:
       #use already present conda on oneapi images
-      conda_path = '/opt/intel/oneapi/intelpython/latest/'
-      commands = [conda_path+'bin/conda config --add channels ' + ' --add channels '.join(channels),
-        conda_path+'bin/conda install -y '+ ' '.join(conda_packages),
-        conda_path+'bin/conda clean -afy' ]
+      #conda_path = '/opt/intel/oneapi/intelpython/latest/'
+      #commands = [conda_path+'bin/conda config --add channels ' + ' --add channels '.join(channels),
+        #conda_path+'bin/conda install -y '+ ' '.join(conda_packages),
+        #conda_path+'bin/conda clean -afy' ]
       
 
     Stage0 += comment('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', reformat=False)
