@@ -80,7 +80,7 @@ def sdk():
   
   #Install boost with the provided python
 
-   python_path = '/opt/intel/oneapi/intelpython/latest/'
+  python_path = '/opt/intel/oneapi/intelpython/latest/'
   if(args.target_arch == 'x86_64' and (args.python == 'intel' or args.oneapi != 'no')):
     Stage0 += shell(commands=[ 'echo "\\\n\
       using python\\\n\
