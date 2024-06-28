@@ -16,7 +16,8 @@ jobs:
                 exclude:
                     - mpi: mvapich
                       arch: arm
-        runs-on: ubuntu-large
+        runs-on:
+            labels: ubuntu-20.04-16core
         if: "${{ github.event.inputs.name }} == 'manual' && contains(github.event.head_commit.message, 'sdk')"
         steps:
         -   uses: actions/checkout@v2
