@@ -84,7 +84,7 @@ def sdk():
       using python\\\n\
       : \\\n\
       : `which python`\\\n\
-      : `dirname '+python_path+'/include/python*/..`\\\n\
+      #: `dirname '+python_path+'/include/python*/..`\\\n\
       : '+python_path+'/lib\\\n\
       ;\\\n\
   " > /tmp/user-config.jam' ])
